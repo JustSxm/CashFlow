@@ -1,0 +1,12 @@
+FROM node:22.16.0-alpine3.21
+
+WORKDIR /app
+
+# Copy package.json & package-lock.json into /app
+COPY ./frontend/package*.json .
+
+# npm install dependencies -- see https://docs.npmjs.com/cli/v8/commands/npm-ci
+RUN npm ci
+
+# run in dev on container start
+CMD ["npm", "run", "dev"]

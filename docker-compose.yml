@@ -1,0 +1,52 @@
+name: cashflow
+
+services:
+    frontend:
+        container_name: frontend
+        build:
+            context: .
+            dockerfile: ./docker/Frontend-Dockerfile
+        ports:
+            - "3000:5173"
+        volumes:
+            - ./frontend:/app
+            - /app/node_modules
+        environment:
+            - FORCE_COLOR=1
+
+    backend:
+        container_name: backend
+        build:
+            context: .
+            dockerfile: ./docker/Backend-Dockerfile
+        ports:
+            - "3001:3001"
+        volumes:
+            - ./backend:/app
+            - /app/node_modules
+        environment:
+            - FORCE_COLOR=1
+
+    database:
+        container_name: database
+        image: postgres:17.5
+        environment:
+            POSTGRES_DB: cashflow
+            POSTGRES_USER: admin
+            POSTGRES_PASSWORD: admin
+        volumes:
+            - ./pgdata:/var/lib/postgresql/data
+
+    pgadmin:
+        image: dpage/pgadmin4
+        container_name: pgadmin
+        restart: always
+        environment:
+            PGADMIN_DEFAULT_EMAIL: admin@admin.com
+            PGADMIN_DEFAULT_PASSWORD: admin
+        ports:
+            - "3002:80"
+        depends_on:
+            - database
+        volumes:
+            - ./pgadmin_data:/var/lib/pgadmin
