@@ -2,6 +2,7 @@
 
 @theme {
   --font-inter: 'Inter', sans-serif;
-  --color-green: #30b10f;
+  --color-green-400: #22a400;
+  --color-green-500: #30b10f;
   --radius-base: 4px;
 }
