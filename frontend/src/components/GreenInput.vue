@@ -1,19 +1,14 @@
-<script lang="ts">
-import type { FunctionalComponent } from 'vue'
+<script setup lang="ts">
+const props = defineProps<{
+  type?: string
+}>()
 
-export default {
-  props: {
-    label: {
-      type: String,
-      default: 'Default Label',
-    },
-    type: {
-      type: String,
-      default: 'text',
-    },
-    icon: Object as () => FunctionalComponent,
-  },
-}
+const type = props.type ?? 'text'
+const model = defineModel<string>({
+  default: '',
+  type: String,
+  required: false,
+})
 </script>
 
 <template>
@@ -23,6 +18,7 @@ export default {
     </div>
     <input
       :type="type"
+      v-model="model"
       class="border border-1 border-green-500 text-black rounded-base w-full pl-10"
     />
   </div>

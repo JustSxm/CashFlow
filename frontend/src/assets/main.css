@@ -2,7 +2,16 @@
 
 @theme {
   --font-inter: 'Inter', sans-serif;
+  --color-green-300: #197a01;
   --color-green-400: #22a400;
   --color-green-500: #30b10f;
+  --color-red-500: #d80000;
+  --color-red-900: #ffdfdf;
   --radius-base: 4px;
+}
+
+a {
+  color: var(--color-green-500);
+  text-decoration: underline;
+  cursor: pointer;
 }

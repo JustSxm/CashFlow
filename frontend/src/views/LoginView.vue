@@ -1,8 +1,16 @@
 <script setup lang="ts">
-import FormLabel from '@/components/FormLabel.vue'
 import GreenInput from '@/components/GreenInput.vue'
 import Button from '@/components/Button.vue'
-import { KeyRound, User, UserRound } from 'lucide-vue-next'
+import { KeyRound, UserRound } from 'lucide-vue-next'
+import FormLabel from '@/components/FormLabel.vue'
+import { useRouter } from 'vue-router'
+import { RouteNames } from '@/router'
+
+const router = useRouter()
+
+function goToRegister() {
+  router.push({ name: RouteNames.Register })
+}
 </script>
 
 <template>
@@ -25,7 +33,7 @@ import { KeyRound, User, UserRound } from 'lucide-vue-next'
         <Button label="Login" classes="elevation-1"></Button>
       </div>
       <div class="absolute bottom-4 left-1/2 transform -translate-x-1/2 text-center w-full text-sm">
-        Don't have an account? <span class="text-green-500">Register</span>
+        Don't have an account? <a @click="goToRegister">Register</a>
       </div>
     </div>
   </div>
