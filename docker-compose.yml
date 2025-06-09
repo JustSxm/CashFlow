@@ -38,6 +38,11 @@ services:
             POSTGRES_PASSWORD: admin
         volumes:
             - ./pgdata:/var/lib/postgresql/data
+        healthcheck:
+            test: ["CMD-SHELL", "pg_isready -U admin -d cashflow"]
+            interval: 3s
+            timeout: 2s
+            retries: 5
 
     pgadmin:
         image: dpage/pgadmin4
@@ -52,3 +57,16 @@ services:
             - database
         volumes:
             - ./pgadmin_data:/var/lib/pgadmin
+
+    migrations:
+        container_name: migrations
+        image: ghcr.io/amacneil/dbmate:latest
+        command: up
+        environment:
+            DATABASE_URL: postgres://admin:admin@database:5432/cashflow?sslmode=disable
+            DBMATE_MIGRATIONS_DIR: /migrations
+        depends_on:
+            database:
+                condition: service_healthy
+        volumes:
+            - ./migrations:/migrations
