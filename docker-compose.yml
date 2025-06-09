@@ -65,6 +65,7 @@ services:
         environment:
             DATABASE_URL: postgres://admin:admin@database:5432/cashflow?sslmode=disable
             DBMATE_MIGRATIONS_DIR: /migrations
+            DBMATE_SCHEMA_FILE: /migrations/schema.sql
         depends_on:
             database:
                 condition: service_healthy
