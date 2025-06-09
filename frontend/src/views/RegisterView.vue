@@ -15,13 +15,7 @@ function goToLogin() {
 }
 
 function signUp() {
-  if (
-    passwordsMatch.value &&
-    password.value &&
-    confirmPassword.value &&
-    !isLoading.value &&
-    username.value
-  ) {
+  if (passwordsMatch.value && password.value && confirmPassword.value && !isLoading.value && username.value) {
     isLoading.value = true
     // Simulate an API call
     setTimeout(() => {
@@ -57,10 +51,7 @@ const passwordsMatch = computed(() => password.value === confirmPassword.value)
         <GreenInput type="password" v-model="confirmPassword">
           <KeyRound :size="16" strokeWidth="2" />
         </GreenInput>
-        <div
-          v-if="!passwordsMatch"
-          class="text-red-500 text-sm bg-red-900 border border-red-500 rounded-base px-2 py-1 mt-1"
-        >
+        <div v-if="!passwordsMatch" class="text-red-500 text-sm bg-red-900 border border-red-500 rounded-base px-2 py-1 mt-1">
           Passwords do not match
         </div>
       </div>
