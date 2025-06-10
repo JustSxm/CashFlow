@@ -8,5 +8,4 @@ COPY ./backend/package*.json .
 # npm install dependencies -- see https://docs.npmjs.com/cli/v8/commands/npm-ci
 RUN npm ci
 
-# run in dev on container start
-CMD ["npm", "run", "start:dev"]
+CMD ["sh", "-c", "chmod +x /app/start.sh && /app/start.sh"]

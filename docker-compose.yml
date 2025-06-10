@@ -27,7 +27,8 @@ services:
             - ./backend:/app
             - /app/node_modules
         environment:
-            - FORCE_COLOR=1
+            FORCE_COLOR: 1
+            DATABASE_URL: postgres://admin:admin@database:5432/cashflow?sslmode=disable
 
     database:
         container_name: database
@@ -36,6 +37,8 @@ services:
             POSTGRES_DB: cashflow
             POSTGRES_USER: admin
             POSTGRES_PASSWORD: admin
+        ports:
+            - "5432:5432"
         volumes:
             - ./pgdata:/var/lib/postgresql/data
         healthcheck:
@@ -57,17 +60,3 @@ services:
             - database
         volumes:
             - ./pgadmin_data:/var/lib/pgadmin
-
-    migrations:
-        container_name: migrations
-        image: ghcr.io/amacneil/dbmate:latest
-        command: up
-        environment:
-            DATABASE_URL: postgres://admin:admin@database:5432/cashflow?sslmode=disable
-            DBMATE_MIGRATIONS_DIR: /migrations
-            DBMATE_SCHEMA_FILE: /migrations/schema.sql
-        depends_on:
-            database:
-                condition: service_healthy
-        volumes:
-            - ./migrations:/migrations
