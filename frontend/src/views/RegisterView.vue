@@ -6,6 +6,7 @@ import FormLabel from '@/components/FormLabel.vue'
 import { useRouter } from 'vue-router'
 import { RouteNames } from '@/router'
 import { ref, computed } from 'vue'
+import { ApiEndpoints } from '@/api'
 
 const router = useRouter()
 const isLoading = ref(false)
@@ -14,13 +15,30 @@ function goToLogin() {
   router.push({ name: RouteNames.Login })
 }
 
-function signUp() {
+async function signUp() {
   if (passwordsMatch.value && password.value && confirmPassword.value && !isLoading.value && username.value) {
     isLoading.value = true
-    // Simulate an API call
-    setTimeout(() => {
+
+    let response = await fetch(ApiEndpoints.REGISTER, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        username: username.value,
+        password: password.value,
+      }),
+    })
+
+    if (response.ok) {
+      alert('Registration successful! You can now log in.')
       isLoading.value = false
-    }, 2000)
+      router.push({ name: RouteNames.Login })
+    } else {
+      console.error('Registration failed:', response.statusText)
+      alert('Registration failed. Please try again.')
+      isLoading.value = false
+    }
   }
 }
 
