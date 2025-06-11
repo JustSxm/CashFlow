@@ -8,4 +8,4 @@ COPY ./backend/package*.json .
 # npm install dependencies -- see https://docs.npmjs.com/cli/v8/commands/npm-ci
 RUN npm ci
 
-CMD ["sh", "-c", "chmod +x /app/start.sh && /app/start.sh"]
+CMD ["sh", "-c", "npx prisma generate && npm run start:dev"]
