@@ -4,28 +4,28 @@ import { AuthService } from './auth.service';
 import { UserDTO } from 'src/models/models';
 import { LocalAuthGuard } from './local-auth.guard';
 import { JwtAuthGuard } from './jwt-auth.guard';
+import { Throttle } from '@nestjs/throttler';
 
 @Controller('auth')
 export class AuthController {
-    constructor(private authService: AuthService) {}
+  constructor(private authService: AuthService) {}
 
-    @UseGuards(LocalAuthGuard)
-    @Post('login')
-    async login(@Request() req) {
-        return this.authService.login(req.user);
-    }
+  @Throttle({ default: { limit: 1, ttl: 300000 } })
+  @Post('register')
+  async register(@Body() user: UserDTO) {
+    return this.authService.register(user);
+  }
 
-    @Post('register')
-    async register(@Body() user: UserDTO) {
-        return this.authService.register(user);
-    }
+  @Throttle({ default: { limit: 5, ttl: 300000 } })
+  @UseGuards(LocalAuthGuard)
+  @Post('login')
+  async login(@Request() req) {
+    return this.authService.login(req.user);
+  }
 
-    @UseGuards(JwtAuthGuard)
-    @Get('test')
-    getProfile(@Request() req) {
-        return {
-            message: 'This route is protected with JWT',
-            user: req.user,
-        };
-    }
+  @Throttle({ default: { limit: 3, ttl: 300000 } })
+  @Post('refresh')
+  async refresh(@Body() body: { refresh_token: string }) {
+    return this.authService.getNewAccessToken(body.refresh_token);
+  }
 }

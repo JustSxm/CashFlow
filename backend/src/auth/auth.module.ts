@@ -9,15 +9,8 @@ import { AuthController } from './auth.controller';
 import { UsersModule } from 'src/users/users.module';
 
 @Module({
-    imports: [
-        UsersModule,
-        PassportModule,
-        JwtModule.register({
-            secret: 'secretKey', // use env
-            signOptions: { expiresIn: '1h' },
-        }),
-    ],
-    providers: [AuthService, LocalStrategy, JwtStrategy],
-    controllers: [AuthController],
+  imports: [UsersModule, PassportModule, JwtModule],
+  providers: [AuthService, LocalStrategy, JwtStrategy],
+  controllers: [AuthController],
 })
 export class AuthModule {}
