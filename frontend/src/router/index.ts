@@ -4,6 +4,7 @@ import { createRouter, createWebHistory } from 'vue-router'
 enum RouteNames {
   Login = 'Login',
   Register = 'Register',
+  Dashboard = 'Dashboard',
 }
 
 const router = createRouter({
@@ -14,6 +15,11 @@ const router = createRouter({
       path: '/register',
       name: RouteNames.Register,
       component: () => import('@/views/RegisterView.vue'),
+    },
+    {
+      path: '/dashboard',
+      name: RouteNames.Dashboard,
+      component: () => import('@/views/DashboardView.vue'),
     },
   ],
 })

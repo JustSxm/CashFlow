@@ -31,4 +31,14 @@ export class PrismaService extends PrismaClient implements OnModuleInit {
       where: { token },
     });
   }
+
+  async deleteExpiredRefreshTokens(now: Date) {
+    return this.refresh_tokens.deleteMany({
+      where: {
+        expires_at: {
+          lt: now,
+        },
+      },
+    });
+  }
 }

@@ -5,11 +5,45 @@ import { KeyRound, UserRound } from 'lucide-vue-next'
 import FormLabel from '@/components/FormLabel.vue'
 import { useRouter } from 'vue-router'
 import { RouteNames } from '@/router'
+import { ApiEndpoints } from '@/api'
+import { ref } from 'vue'
+import { useAuthStore } from '@/stores/authStore'
 
 const router = useRouter()
+const authStore = useAuthStore()
+
+let username = ref('')
+let password = ref('')
 
 function goToRegister() {
   router.push({ name: RouteNames.Register })
+}
+
+async function login() {
+  var response = await fetch(ApiEndpoints.LOGIN, {
+    method: 'POST',
+    credentials: 'include',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      username: username.value,
+      password: password.value,
+    }),
+  })
+
+  if (response.ok) {
+    let data = await response.json()
+    authStore.setUsername(data.username)
+    authStore.setAccessToken(data.accessToken)
+    authStore.setRefreshToken(data.refreshToken)
+
+    router.push({ name: RouteNames.Dashboard })
+  } else {
+    console.error('Login failed:', response.statusText)
+    alert('Login failed. Please check your credentials and try again.')
+    return
+  }
 }
 </script>
 
@@ -19,18 +53,18 @@ function goToRegister() {
     <div class="flex flex-col gap-6 px-14 -mt-24">
       <div>
         <FormLabel label="Username" icon=""></FormLabel>
-        <GreenInput>
+        <GreenInput v-model="username">
           <UserRound :size="16" strokeWidth="2" />
         </GreenInput>
       </div>
       <div>
         <FormLabel label="Password" icon=""></FormLabel>
-        <GreenInput type="password">
+        <GreenInput type="password" v-model="password">
           <KeyRound :size="16" strokeWidth="2" />
         </GreenInput>
       </div>
       <div class="mt-4">
-        <Button label="Login" classes="elevation-1"></Button>
+        <Button label="Login" @click="login"></Button>
       </div>
       <div class="absolute bottom-4 left-1/2 transform -translate-x-1/2 text-center w-full text-sm">
         Don't have an account? <a @click="goToRegister">Register</a>

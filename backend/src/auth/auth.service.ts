@@ -45,11 +45,18 @@ export class AuthService {
   async login(user: User) {
     const accessToken = await this.createAccessToken(user);
     const refreshToken = await this.createRefreshToken(user);
+    await this.deleteExpiredRefreshTokens();
 
     return {
+      username: user.username,
       accessToken,
       refreshToken,
     };
+  }
+
+  async deleteExpiredRefreshTokens() {
+    const now = new Date();
+    await this.prismaService.deleteExpiredRefreshTokens(now);
   }
 
   async getPayloadFromUser(user: User): Promise<{ username: string; sub: number }> {
