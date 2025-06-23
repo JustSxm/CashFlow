@@ -2,13 +2,16 @@
 
 @theme {
   --font-inter: 'Inter', sans-serif;
+  --font-montserrat: 'Montserrat', sans-serif;
   --color-green-100: #115300;
   --color-green-200: #156501;
   --color-green-300: #197a01;
   --color-green-400: #22a400;
   --color-green-500: #30b10f;
+  --color-green-800: #a4fa8e;
   --color-red-500: #d80000;
   --color-red-900: #ffdfdf;
+  --color-blue-500: #0f25b1;
   --radius-base: 4px;
 }
 
