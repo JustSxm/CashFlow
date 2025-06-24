@@ -9,8 +9,11 @@
   --color-green-400: #22a400;
   --color-green-500: #30b10f;
   --color-green-800: #a4fa8e;
+  --color-green-900: #dffdd7;
+  --color-red-200: #7f0101;
   --color-red-500: #d80000;
   --color-red-900: #ffdfdf;
+
   --color-blue-500: #0f25b1;
   --radius-base: 4px;
 }

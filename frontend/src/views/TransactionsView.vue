@@ -3,9 +3,14 @@ import TransactionGraph from '@/components/TransactionGraph.vue'
 import TransactionGroup from '@/components/TransactionGroup.vue'
 import Button from '@/components/Button.vue'
 import { ArrowUp, Funnel } from 'lucide-vue-next'
+import AddTransactionPopup from '@/components/popups/AddTransactionPopup.vue'
+import { ref } from 'vue'
+
+let showAddTransactionPopup = ref(false)
 </script>
 
 <template>
+  <AddTransactionPopup v-if="showAddTransactionPopup" />
   <div class="pt-16 text-green-200">
     <div class="flex flex-col items-center gap-1">
       <span class="flex gap-1 text-center font-inter font-light">Up <ArrowUp width="16" stroke-width="2" /></span>
@@ -23,7 +28,7 @@ import { ArrowUp, Funnel } from 'lucide-vue-next'
     </div>
 
     <div class="fixed bottom-0 flex w-full p-4 gap-3">
-      <Button label="Add Transaction" class="flex-1 shadow-lg" />
+      <Button label="Add Transaction" class="flex-1 shadow-lg" @click="showAddTransactionPopup = true" />
       <Button class="!w-12 relative shadow-lg">
         <div class="text-white absolute inset-0 flex items-center justify-center">
           <Funnel :size="24" />
