@@ -21,6 +21,29 @@ let category = ref('')
 function onCategoryChanged(value: string) {
   category.value = value
 }
+
+function createTransaction() {
+  if (!vendor.value || !amount.value || !type.value || !category.value) {
+    alert('Please fill in all fields.')
+    return
+  }
+
+  const transaction = {
+    vendor: vendor.value,
+    amount: parseFloat(amount.value.replace(/[^0-9.-]+/g, '')),
+    type: type.value,
+    category: category.value,
+  }
+
+  console.log('Transaction created:', transaction)
+
+  vendor.value = ''
+  amount.value = ''
+  type.value = ''
+  category.value = ''
+
+  props.onClose()
+}
 </script>
 
 <template>
@@ -91,7 +114,7 @@ function onCategoryChanged(value: string) {
         </div>
         <div class="flex gap-2 mt-6">
           <RedButton label="Cancel" class="w-full" @click="onClose" />
-          <Button label="Created" class="w-full" />
+          <Button label="Created" class="w-full" @click="createTransaction" />
         </div>
       </div>
     </div>
