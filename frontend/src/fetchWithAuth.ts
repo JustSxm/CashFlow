@@ -1,4 +1,4 @@
-import { ApiEndpoints } from './api'
+import { ApiEndpoints } from './enums/APIEndpoints'
 import { useAuthStore } from './stores/authStore'
 import router from './router'
 

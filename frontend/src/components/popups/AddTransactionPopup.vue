@@ -6,9 +6,21 @@ import Pill from '../Pill.vue'
 import { Store, Coins, Upload } from 'lucide-vue-next'
 import Button from '../Button.vue'
 import RedButton from '../RedButton.vue'
+import { TransactionTypes } from '@/enums/TransactionTypes'
+import { Categories } from '@/enums/Categories'
+
+let props = defineProps<{
+  onClose: () => void
+}>()
 
 let vendor = ref('')
 let amount = ref('')
+let type = ref('')
+let category = ref('')
+
+function onCategoryChanged(value: string) {
+  category.value = value
+}
 </script>
 
 <template>
@@ -31,12 +43,24 @@ let amount = ref('')
         <div class="px-4">
           <FormLabel label="Type"></FormLabel>
           <div class="flex w-full gap-3">
-            <div class="bg-red-900 h-8 px-3 py-1.5 text-red-200 border-red-500 flex justify-center items-center border rounded-base w-full">
+            <div
+              :class="[
+                type == TransactionTypes.EXPENSE ? 'bg-red-200 text-red-900 border-red-200' : 'bg-red-900 text-red-200 border-red-500',
+                ' h-8 px-3 py-1.5 flex justify-center items-center border rounded-base w-full cursor-pointer transition-colors duration-200',
+              ]"
+              @click="type = TransactionTypes.EXPENSE"
+            >
               <Upload :size="16" strokeWidth="2" class="inline-block mr-1" />
               Expense
             </div>
             <div
-              class="bg-green-900 h-8 px-3 py-1.5 text-green-200 border-green-500 flex justify-center items-center border rounded-base w-full"
+              :class="[
+                type == TransactionTypes.INCOME
+                  ? 'bg-green-200 text-green-900 border-green-200'
+                  : 'bg-green-900 text-green-200 border-green-500',
+                ' h-8 px-3 py-1.5  flex justify-center items-center border rounded-base w-full cursor-pointer duration-200',
+              ]"
+              @click="type = TransactionTypes.INCOME"
             >
               <Upload :size="16" strokeWidth="2" class="inline-block mr-1" />
               Income
@@ -46,17 +70,27 @@ let amount = ref('')
         <div class="px-4">
           <FormLabel label="Category"></FormLabel>
           <div class="flex flex-wrap gap-1">
-            <Pill label="Restaurant" />
-            <Pill label="Pets" />
-            <Pill label="Car" />
-            <Pill label="Housing" />
-            <Pill label="Food" />
-            <Pill label="Subscription" />
-            <Pill label="Other" />
+            <Pill
+              label="Restaurant"
+              :value="Categories.RESTAURANT"
+              :selected="category == Categories.RESTAURANT"
+              @click="onCategoryChanged"
+            />
+            <Pill label="Pets" :value="Categories.PETS" :selected="category == Categories.PETS" @click="onCategoryChanged" />
+            <Pill label="Car" :value="Categories.CAR" :selected="category == Categories.CAR" @click="onCategoryChanged" />
+            <Pill label="Housing" :value="Categories.HOUSING" :selected="category == Categories.HOUSING" @click="onCategoryChanged" />
+            <Pill label="Food" :value="Categories.FOOD" :selected="category == Categories.FOOD" @click="onCategoryChanged" />
+            <Pill
+              label="Subscription"
+              :value="Categories.SUBSCRIPTIONS"
+              :selected="category == Categories.SUBSCRIPTIONS"
+              @click="onCategoryChanged"
+            />
+            <Pill label="Other" :value="Categories.OTHER" :selected="category == Categories.OTHER" @click="onCategoryChanged" />
           </div>
         </div>
         <div class="flex gap-2 mt-6">
-          <RedButton label="Cancel" class="w-full" />
+          <RedButton label="Cancel" class="w-full" @click="onClose" />
           <Button label="Created" class="w-full" />
         </div>
       </div>

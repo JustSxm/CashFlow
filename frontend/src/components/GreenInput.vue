@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed } from 'vue'
+import { onMounted, ref } from 'vue'
 
 const props = defineProps<{
   type?: string
@@ -12,15 +12,40 @@ let type = props.type ?? 'text'
 const isMoney = props.type === 'money'
 let min = undefined
 
-if (isMoney) {
-  type = 'number'
-  min = 0
+function formatMoney(digits: string): string {
+  if (!digits) return ''
+
+  const cleaned = digits.replace(/\D/g, '').padStart(3, '0')
+  const int = cleaned.slice(0, -2)
+  const dec = cleaned.slice(-2)
+
+  return `${parseInt(int, 10)}.${dec}`
 }
 
 function onInput(event: Event) {
-  let modifiedValue = 'a'
-  model.value = modifiedValue
+  if (!isMoney) return
+  const inputEvent = event as InputEvent
+
+  const input = event.target as HTMLInputElement
+  let raw = input.value.replace(/\D/g, '')
+
+  if (inputEvent.inputType === 'deleteContentBackward') {
+    if (raw.length >= 0) {
+      raw = raw.slice(0, -1)
+    }
+  }
+
+  const formatted = formatMoney(raw)
+
+  model.value = `${formatted} $`
+  input.value = `${formatted} $`
 }
+
+onMounted(() => {
+  if (isMoney) {
+    model.value = `${formatMoney('0')} $`
+  }
+})
 </script>
 
 <template>
@@ -28,7 +53,13 @@ function onInput(event: Event) {
     <div class="absolute left-4 top-1/2 transform -translate-y-1/2">
       <slot></slot>
     </div>
-    <input :type="type" v-model="model" class="border border-green-500 text-black rounded-base w-full pl-10" :min="min" @input="onInput" />
+    <input
+      :type="type"
+      v-model="model"
+      class="border border-green-500 text-black rounded-base w-full pl-10 font-inter"
+      :min="min"
+      @input="onInput"
+    />
   </div>
 </template>
 

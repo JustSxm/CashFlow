@@ -5,6 +5,16 @@ const props = defineProps<{
   loading?: boolean
   class?: string
 }>()
+
+let emit = defineEmits<{
+  (e: 'click'): void
+}>()
+
+function handleClick() {
+  if (!props.loading) {
+    emit('click')
+  }
+}
 </script>
 
 <template>
@@ -15,6 +25,7 @@ const props = defineProps<{
       props.loading ? 'cursor-not-allowed bg-red-900' : 'cursor-pointer active:scale-95 active:bg-red-900 ',
     ]"
     :disabled="props.loading ?? false"
+    @click="handleClick"
   >
     <span v-if="props.loading" class="loader"><LoaderCircle></LoaderCircle></span>
     <span v-else-if="props.label != null">{{ props.label }}</span>

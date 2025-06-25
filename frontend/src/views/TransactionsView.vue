@@ -7,10 +7,14 @@ import AddTransactionPopup from '@/components/popups/AddTransactionPopup.vue'
 import { ref } from 'vue'
 
 let showAddTransactionPopup = ref(false)
+
+function close() {
+  showAddTransactionPopup.value = false
+}
 </script>
 
 <template>
-  <AddTransactionPopup v-if="showAddTransactionPopup" />
+  <AddTransactionPopup v-if="showAddTransactionPopup" :onClose="close" />
   <div class="pt-16 text-green-200">
     <div class="flex flex-col items-center gap-1">
       <span class="flex gap-1 text-center font-inter font-light">Up <ArrowUp width="16" stroke-width="2" /></span>

@@ -6,7 +6,7 @@ import FormLabel from '@/components/FormLabel.vue'
 import { useRouter } from 'vue-router'
 import { RouteNames } from '@/router'
 import { ref, computed } from 'vue'
-import { ApiEndpoints } from '@/api'
+import { ApiEndpoints } from '@/enums/APIEndpoints'
 
 const router = useRouter()
 const isLoading = ref(false)

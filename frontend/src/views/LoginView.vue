@@ -5,7 +5,7 @@ import { KeyRound, UserRound } from 'lucide-vue-next'
 import FormLabel from '@/components/FormLabel.vue'
 import { useRouter } from 'vue-router'
 import { RouteNames } from '@/router'
-import { ApiEndpoints } from '@/api'
+import { ApiEndpoints } from '@/enums/APIEndpoints'
 import { ref } from 'vue'
 import { useAuthStore } from '@/stores/authStore'
 
