@@ -1,0 +1,33 @@
+{
+	"compilerOptions": {
+		"target": "ES2023",
+		"lib": ["ES2023"],
+		"moduleResolution": "node",
+		"module": "commonjs",
+		"baseUrl": ".",
+		"rootDir": ".",
+		"experimentalDecorators": true,
+		"sourceMap": true,
+		"tsBuildInfoFile": "./node_modules/.tmp/tsconfig.app.tsbuildinfo",
+		"declaration": true,
+		"removeComments": true,
+		"emitDecoratorMetadata": true,
+		"allowSyntheticDefaultImports": true,
+		"skipLibCheck": true,
+		"strictNullChecks": true,
+		"forceConsistentCasingInFileNames": true,
+		"noImplicitAny": true,
+		"paths": {
+			"@shared/*": ["shared/src/*"]
+		}
+	},
+	"watchOptions": {
+		"watchFile": "priorityPollingInterval",
+		"watchDirectory": "dynamicprioritypolling",
+		"fallbackPolling": "dynamicPriority",
+		"synchronousWatchDirectory": true,
+		"excludeDirectories": ["**/node_modules", "**/dist"]
+	},
+	"references": [{ "path": "shared" }, { "path": "backend" }],
+	"exclude": ["frontend", "**/eslint.config.ts"]
+}

@@ -1,0 +1,18 @@
+{
+	"name": "cashflow-monorepo",
+	"private": true,
+	"workspaces": [
+		"shared",
+		"backend",
+		"frontend"
+	],
+	"scripts": {
+		"dev": "docker compose up -d && concurrently -n SHARED,BACKEND,FRONTEND -c yellow,cyan,magenta \"npm:shared\" \"npm:backend\" \"npm:frontend\"",
+		"shared": "cd shared && npm run watch",
+		"backend": "cd backend && npm run dev",
+		"frontend": "cd frontend && npm run dev"
+	},
+	"devDependencies": {
+		"concurrently": "^9.2.0"
+	}
+}

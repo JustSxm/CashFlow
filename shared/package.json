@@ -1,0 +1,11 @@
+{
+	"name": "shared",
+	"version": "1.0.0",
+	"scripts": {
+		"watch": "tsc --watch --preserveWatchOutput"
+	},
+	"dependencies": {
+		"class-validator": "latest",
+		"typescript": "^5.8.3"
+	}
+}

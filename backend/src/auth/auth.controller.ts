@@ -1,9 +1,8 @@
 // auth.controller.ts
 import { Controller, Post, UseGuards, Request, Body, Get } from '@nestjs/common';
 import { AuthService } from './auth.service';
-import { UserDTO } from 'src/models/models';
+import { UserDTO } from '@shared/models';
 import { LocalAuthGuard } from './local-auth.guard';
-import { JwtAuthGuard } from './jwt-auth.guard';
 import { Throttle } from '@nestjs/throttler';
 
 @Controller('auth')
