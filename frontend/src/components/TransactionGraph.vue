@@ -1,42 +1,65 @@
 <script setup lang="ts">
+import type { Transaction } from '@shared/Transaction'
+import { TransactionTypes } from '@shared/TransactionTypes'
 import { Chart as ChartJS, LinearScale, PointElement, LineElement, type ChartOptions, type ChartData, type Plugin, Filler } from 'chart.js'
+import { computed } from 'vue'
 import { Line } from 'vue-chartjs'
+
+const props = defineProps<{
+  up: boolean
+  transactions: Transaction[]
+}>()
+
+let borderColor = computed(() => {
+  return props.up ? 'rgba(48, 177, 15, 1)' : 'rgba(255, 0, 0, 1)'
+})
+
+let gradentColor = computed(() => {
+  return props.up ? 'rgba(48, 177, 15, 0.4)' : 'rgba(255, 0, 0, 0.4)'
+})
+
+let gradientEndColor = computed(() => {
+  return props.up ? 'rgba(164, 250, 142, 0.01)' : 'rgba(250, 142, 142, 0.01)'
+})
 
 ChartJS.register(LinearScale, PointElement, LineElement, Filler)
 
-const accountFluctuations = [
-  1000, 1120, 1025, 1087, 1230, 1160, 1215, 1060, 985, 1140, 1090, 1035, 1115, 1010, 1195, 1110, 1250, 1175, 1305, 1350,
-]
-const dataPoints = accountFluctuations.map((y, x) => ({ x, y }))
+const accountFluctuations = computed(() =>
+  props.transactions.map((transaction) =>
+    transaction.type === TransactionTypes.INCOME ? Number(transaction.amount) : -Number(transaction.amount),
+  ),
+)
 
-const data: ChartData<'line'> = {
-  datasets: [
-    {
-      data: dataPoints,
-      fill: true,
-      backgroundColor: (context) => {
-        const gradient = context.chart.ctx.createLinearGradient(0, 0, 0, context.chart.height)
-        gradient.addColorStop(0, 'rgba(48, 177, 15, 0.4)')
-
-        gradient.addColorStop(1, 'rgba(164, 250, 142, 0)')
-        return gradient
+const data = computed<ChartData<'line'>>(() => {
+  const dataPoints = accountFluctuations.value.map((y, x) => ({ x, y }))
+  return {
+    datasets: [
+      {
+        data: dataPoints,
+        fill: 'start',
+        backgroundColor: (context) => {
+          const gradient = context.chart.ctx.createLinearGradient(0, 0, 0, context.chart.height)
+          gradient.addColorStop(0, gradentColor.value)
+          gradient.addColorStop(1, gradientEndColor.value)
+          return gradient
+        },
+        borderColor: borderColor.value,
+        tension: 0,
+        yAxisID: 'y',
+        xAxisID: 'x',
       },
-      borderColor: 'rgba(48, 177, 15, 1)',
-      tension: 0,
-      yAxisID: 'y',
-      xAxisID: 'x',
-    },
-  ],
-}
+    ],
+  }
+})
 
-const options: ChartOptions<'line'> = {
+const options = computed<ChartOptions<'line'>>(() => ({
   responsive: true,
   maintainAspectRatio: false,
   layout: {
     padding: {
       top: 5,
-      left: 48,
-      right: 48,
+      left: 16,
+      right: 16,
       bottom: 0,
     },
   },
@@ -50,10 +73,11 @@ const options: ChartOptions<'line'> = {
       type: 'linear',
       display: false,
       min: 0,
-      max: accountFluctuations.length - 1,
+      max: accountFluctuations.value.length - 1,
     },
     y: {
       display: false,
+      min: Math.min(...accountFluctuations.value) * 1.1,
     },
   },
   elements: {
@@ -64,7 +88,7 @@ const options: ChartOptions<'line'> = {
       borderWidth: 2,
     },
   },
-}
+}))
 </script>
 
 <template>

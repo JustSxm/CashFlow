@@ -22,3 +22,11 @@ export class Transaction {
 	category: string;
 	date: Date;
 }
+
+export type GroupedTransactions = {
+	Today: Transaction[];
+	Yesterday: Transaction[];
+	"This Week": Transaction[];
+	"Last Week": Transaction[];
+	Other: Record<string, Transaction[]>; // e.g., "June 15": [...]
+};

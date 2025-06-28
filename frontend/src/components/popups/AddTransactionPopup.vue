@@ -15,17 +15,26 @@ import { ApiEndpoints } from '@/enums/APIEndpoints'
 import { fetchWithAuth } from '@/fetchWithAuth'
 import type { DropdownOption } from '@/models/DropdownOption'
 import { AccountTypes } from '@shared/AccountTypes'
-import { TransactionDTO } from '@shared/Transaction'
+import { Transaction, TransactionDTO } from '@shared/Transaction'
 
 let props = defineProps<{
   onClose: () => void
+  transaction?: Transaction
 }>()
 
 let vendor = ref('')
 let amount = ref('')
-let account = ref(null)
+let account = ref<number | null>(null)
 let type = ref('')
 let category = ref('')
+
+if (props.transaction) {
+  vendor.value = props.transaction.vendor
+  amount.value = parseFloat(props.transaction.amount.toString()).toFixed(2)
+  account.value = props.transaction.account_id
+  type.value = props.transaction.type
+  category.value = props.transaction.category
+}
 
 function onCategoryChanged(value: string) {
   category.value = value
@@ -37,9 +46,14 @@ async function createTransaction() {
     return
   }
 
+  if (props.transaction) {
+    await editTransaction()
+    return
+  }
+
   const transaction: TransactionDTO = {
     vendor: vendor.value,
-    accountId: account.value,
+    accountId: Number(account.value),
     amount: parseFloat(amount.value.replace(/[^0-9.-]+/g, '')),
     type: type.value,
     category: category.value,
@@ -50,11 +64,33 @@ async function createTransaction() {
     body: JSON.stringify(transaction),
   })
 
+  onClose()
+}
+
+async function editTransaction() {
+  if (!props.transaction) return
+
+  const transaction: TransactionDTO = {
+    vendor: vendor.value,
+    accountId: Number(account.value),
+    amount: parseFloat(amount.value.replace(/[^0-9.-]+/g, '')),
+    type: type.value,
+    category: category.value,
+  }
+
+  await fetchWithAuth(`${ApiEndpoints.TRANSACTIONS}/${props.transaction.id}`, {
+    method: 'PUT',
+    body: JSON.stringify(transaction),
+  })
+
+  onClose()
+}
+
+function onClose() {
   vendor.value = ''
   amount.value = ''
   type.value = ''
   category.value = ''
-
   props.onClose()
 }
 
@@ -76,7 +112,7 @@ onMounted(async () => {
 <template>
   <div class="bg-black/50 fixed inset-0 z-40 flex items-center justify-center">
     <div class="absolute bg-white h-auto w-96 border-t-6 border-green-400 mx-auto z-50 p-6">
-      <h1 class="text-xl text-center font-medium">Add Transaction</h1>
+      <h1 class="text-xl text-center font-medium">{{ transaction ? 'Update' : 'Add' }} Transaction</h1>
       <div class="flex flex-col gap-6 mt-6">
         <div class="px-4">
           <FormLabel label="Vendor"></FormLabel>
@@ -145,7 +181,7 @@ onMounted(async () => {
         </div>
         <div class="flex gap-2 mt-6">
           <RedButton label="Cancel" class="w-full" @click="onClose" />
-          <Button label="Create" class="w-full" @click="createTransaction" />
+          <Button :label="transaction ? 'Update' : 'Create'" class="w-full" @click="createTransaction" />
         </div>
       </div>
     </div>

@@ -1,6 +1,8 @@
-import { Controller, Post, UseGuards, Request, Get } from '@nestjs/common';
+import { Controller, Post, UseGuards, Request, Get, Delete, Param, ParseIntPipe, Body, Put } from '@nestjs/common';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { MeService } from './me.service';
+import { TransactionDTO } from '@shared/Transaction';
+import { AccountDTO } from '@shared/Account';
 
 @Controller('me')
 @UseGuards(JwtAuthGuard)
@@ -8,11 +10,10 @@ export class MeController {
   constructor(private meService: MeService) {}
 
   @Post('transactions')
-  async transactions(@Request() req) {
+  async transactions(@Request() req, @Body() transaction: TransactionDTO) {
     const user = req.user;
-    const transactions = req.body;
 
-    await this.meService.createTransactions(user, transactions);
+    await this.meService.createTransaction(user, transaction);
   }
 
   @Get('transactions')
@@ -21,12 +22,27 @@ export class MeController {
     return this.meService.getTransactions(user);
   }
 
-  @Post('accounts')
-  async accounts(@Request() req) {
+  @Delete('transactions/:id')
+  async deleteTransactions(@Request() req, @Param('id', ParseIntPipe) id: number) {
     const user = req.user;
-    const accounts = req.body;
 
-    await this.meService.createAccounts(user, accounts);
+    await this.meService.deleteTransaction(user, id);
+    return await this.meService.getTransactions(user);
+  }
+
+  @Put('transactions/:id')
+  async updateTransaction(@Request() req, @Param('id', ParseIntPipe) id: number, @Body() transaction: TransactionDTO) {
+    const user = req.user;
+
+    await this.meService.updateTransaction(user, id, transaction);
+    return await this.meService.getTransactions(user);
+  }
+
+  @Post('accounts')
+  async accounts(@Request() req, @Body() account: AccountDTO) {
+    const user = req.user;
+
+    await this.meService.createAccount(user, account);
   }
 
   @Get('accounts')

@@ -2,14 +2,11 @@
 import type { Account } from '@shared/Account'
 import { AccountTypes } from '@shared/AccountTypes'
 import { PiggyBank, CreditCard } from 'lucide-vue-next'
+import { capitalize } from '@/capitalize'
 
 const props = defineProps<{
   account: Account
 }>()
-
-function capitalize(name: string): string {
-  return name.charAt(0).toUpperCase() + name.slice(1).toLocaleLowerCase()
-}
 </script>
 
 <template>

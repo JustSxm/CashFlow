@@ -1,11 +1,11 @@
 <script setup lang="ts">
-import { onMounted, ref } from 'vue'
+import { onMounted, watch } from 'vue'
 
 const props = defineProps<{
   type?: string
 }>()
 
-const model = defineModel()
+const model = defineModel<string>()
 
 let type = props.type ?? 'text'
 
@@ -43,7 +43,7 @@ function onInput(event: Event) {
 
 onMounted(() => {
   if (isMoney) {
-    model.value = `${formatMoney('0')} $`
+    model.value = `${formatMoney(model.value != '' ? model.value! : '0')} $`
   }
 })
 </script>

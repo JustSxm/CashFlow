@@ -3,6 +3,6 @@ import type { JSX } from 'vue/jsx-runtime'
 
 export type DropdownOption = {
   label: string
-  value: string | number
+  value: number
   icon?: Component
 }

@@ -1,14 +1,16 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { onMounted, ref, watch } from 'vue'
 import { ChevronsUpDown, FileQuestion } from 'lucide-vue-next'
 import { type DropdownOption } from '@/models/DropdownOption'
+import { capitalize } from '@/capitalize'
 
 const props = defineProps<{
   placeholder?: string
   options?: DropdownOption[]
 }>()
 
-const model = defineModel()
+const model = defineModel<number | null>()
+
 const open = ref(false)
 const optionModel = ref<DropdownOption | null>(null)
 
@@ -18,9 +20,12 @@ function setDropdownValue(option: DropdownOption) {
   open.value = false
 }
 
-function capitalize(name: string): string {
-  return name.charAt(0).toUpperCase() + name.slice(1).toLocaleLowerCase()
-}
+watch([() => model.value, () => props.options?.length], () => {
+  const matched = props.options?.find((o) => o.value === model.value)
+  if (matched) {
+    optionModel.value = matched
+  }
+})
 </script>
 
 <template>
