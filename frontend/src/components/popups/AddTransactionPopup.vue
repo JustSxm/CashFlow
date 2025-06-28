@@ -114,7 +114,7 @@ function createTransaction() {
         </div>
         <div class="flex gap-2 mt-6">
           <RedButton label="Cancel" class="w-full" @click="onClose" />
-          <Button label="Created" class="w-full" @click="createTransaction" />
+          <Button label="Create" class="w-full" @click="createTransaction" />
         </div>
       </div>
     </div>

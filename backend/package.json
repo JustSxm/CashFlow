@@ -8,7 +8,7 @@
   "scripts": {
     "build": "nest build",
     "generate": "npx prisma generate",
-    "dev": "del .\\node_modules\\.tmp\\tsconfig.app.tsbuildinfo && npm run generate && nest start --watch --debug 0.0.0.0:9229 --preserveWatchOutput"
+    "dev": "del .\\node_modules\\.tmp\\tsconfig.app.tsbuildinfo && npx prisma migrate deploy && npm run generate && nest start --watch --debug 0.0.0.0:9229 --preserveWatchOutput"
   },
   "dependencies": {
     "@nestjs/common": "^11.0.1",

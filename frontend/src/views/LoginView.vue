@@ -70,7 +70,7 @@ async function login() {
         <Button label="Login" @click="login"></Button>
       </div>
       <div class="absolute bottom-4 left-1/2 transform -translate-x-1/2 text-center w-full text-sm">
-        SMILE ! Don't have an account? <a @click="goToRegister">Register</a>
+        Don't have an account? <a @click="goToRegister">Register</a>
       </div>
     </div>
   </div>

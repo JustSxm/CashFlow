@@ -3,4 +3,6 @@ export const ApiEndpoints = {
   LOGIN: `${api}/auth/login`,
   REGISTER: `${api}/auth/register`,
   REFRESH: `${api}/auth/refresh`,
+  ACCOUNTS: `${api}/me/accounts`,
+  TRANSACTIONS: `${api}/me/transactions`,
 } as const
