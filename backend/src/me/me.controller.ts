@@ -9,7 +9,16 @@ export class MeController {
 
   @Post('transactions')
   async transactions(@Request() req) {
-    console.log('Transactions request received');
+    const user = req.user;
+    const transactions = req.body;
+
+    await this.meService.createTransactions(user, transactions);
+  }
+
+  @Get('transactions')
+  async getTransactions(@Request() req) {
+    const user = req.user;
+    return this.meService.getTransactions(user);
   }
 
   @Post('accounts')

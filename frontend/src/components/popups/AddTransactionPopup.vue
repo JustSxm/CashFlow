@@ -1,13 +1,21 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 import FormLabel from '../FormLabel.vue'
 import GreenInput from '../GreenInput.vue'
+
+import GreenDropdown from '../GreenDropdown.vue'
 import Pill from '../Pill.vue'
-import { Store, Coins, Upload } from 'lucide-vue-next'
+import { Store, Coins, Upload, CreditCard, PiggyBank } from 'lucide-vue-next'
 import Button from '../Button.vue'
 import RedButton from '../RedButton.vue'
-import { TransactionTypes } from '@/enums/TransactionTypes'
+import { TransactionTypes } from '@shared/TransactionTypes'
 import { Categories } from '@/enums/Categories'
+import type { Account } from '@shared/Account'
+import { ApiEndpoints } from '@/enums/APIEndpoints'
+import { fetchWithAuth } from '@/fetchWithAuth'
+import type { DropdownOption } from '@/models/DropdownOption'
+import { AccountTypes } from '@shared/AccountTypes'
+import { TransactionDTO } from '@shared/Transaction'
 
 let props = defineProps<{
   onClose: () => void
@@ -15,6 +23,7 @@ let props = defineProps<{
 
 let vendor = ref('')
 let amount = ref('')
+let account = ref(null)
 let type = ref('')
 let category = ref('')
 
@@ -22,20 +31,24 @@ function onCategoryChanged(value: string) {
   category.value = value
 }
 
-function createTransaction() {
-  if (!vendor.value || !amount.value || !type.value || !category.value) {
+async function createTransaction() {
+  if (!vendor.value || !amount.value || !type.value || !category.value || !account.value) {
     alert('Please fill in all fields.')
     return
   }
 
-  const transaction = {
+  const transaction: TransactionDTO = {
     vendor: vendor.value,
+    accountId: account.value,
     amount: parseFloat(amount.value.replace(/[^0-9.-]+/g, '')),
     type: type.value,
     category: category.value,
   }
 
-  console.log('Transaction created:', transaction)
+  await fetchWithAuth(ApiEndpoints.TRANSACTIONS, {
+    method: 'POST',
+    body: JSON.stringify(transaction),
+  })
 
   vendor.value = ''
   amount.value = ''
@@ -44,6 +57,20 @@ function createTransaction() {
 
   props.onClose()
 }
+
+const accounts = ref<Account[]>([])
+const dropDownOptions = computed<DropdownOption[]>(() => {
+  return accounts.value.map((a) => ({
+    label: a.name,
+    value: a.id,
+    icon: a.type === AccountTypes.CARD ? CreditCard : PiggyBank,
+  }))
+})
+
+onMounted(async () => {
+  const response = await fetchWithAuth(ApiEndpoints.ACCOUNTS)
+  accounts.value = await response.json()
+})
 </script>
 
 <template>
@@ -56,6 +83,10 @@ function createTransaction() {
           <GreenInput v-model="vendor">
             <Store :size="16" strokeWidth="1" />
           </GreenInput>
+        </div>
+        <div class="px-4">
+          <FormLabel label="Account"></FormLabel>
+          <GreenDropdown placeholder="Select an account" :options="dropDownOptions" v-model="account"> </GreenDropdown>
         </div>
         <div class="px-4">
           <FormLabel label="Amount"></FormLabel>
