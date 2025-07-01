@@ -1,4 +1,4 @@
-import { IsNotEmpty } from "class-validator";
+import { IsNotEmpty, IsOptional } from "class-validator";
 
 export class AccountDTO {
 	@IsNotEmpty()
@@ -10,8 +10,8 @@ export class AccountDTO {
 	@IsNotEmpty()
 	amount!: number;
 
-	@IsNotEmpty()
-	limit!: string;
+	@IsOptional()
+	limit: string;
 }
 
 export class Account {

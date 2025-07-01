@@ -1,4 +1,4 @@
-import { IsNotEmpty } from "class-validator";
+import { IsNotEmpty, IsOptional } from "class-validator";
 
 export class TransactionDTO {
 	@IsNotEmpty()
@@ -11,12 +11,15 @@ export class TransactionDTO {
 	type: string;
 	@IsNotEmpty()
 	category: string;
+	@IsOptional()
+	accountDestinationId?: number; // Optional for transfers
 }
 
 export class Transaction {
 	id: number;
 	vendor: string;
 	account_id: number;
+	account_destination_id?: number; // Optional for transfers
 	amount: number;
 	type: string;
 	category: string;

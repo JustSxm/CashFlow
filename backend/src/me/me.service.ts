@@ -30,13 +30,24 @@ export class MeService {
   }
 
   async createTransaction(user: User, transaction: TransactionDTO) {
+    if (transaction.type == TransactionTypes.TRANSFER) {
+      this.createTransferTransaction(user, transaction);
+      return;
+    }
+
+    let money = transaction.amount;
+    if (transaction.type === TransactionTypes.EXPENSE) {
+      money = -transaction.amount;
+    }
+
     await this.prismaService.transactions.create({
       data: {
         vendor: transaction.vendor,
         account_id: transaction.accountId,
-        amount: transaction.amount,
+        amount: money,
         type: transaction.type,
         category: transaction.category,
+        accountDestination: transaction.accountDestinationId,
       },
     });
 
@@ -46,6 +57,59 @@ export class MeService {
     }
 
     await this.updateAccountBalance(user, transaction.accountId, editAmount);
+  }
+
+  async createTransferTransaction(user: User, transaction: TransactionDTO) {
+    console.log('Creating transfer transaction:', transaction);
+    if (transaction.type === TransactionTypes.TRANSFER && !transaction.accountDestinationId) {
+      throw new Error('Transfer transactions must have a destination account');
+    }
+
+    const sourceAccount = await this.prismaService.accounts.findFirst({
+      where: {
+        user_id: user.id,
+        id: transaction.accountId,
+      },
+    });
+
+    const destinationAccount = await this.prismaService.accounts.findFirst({
+      where: {
+        user_id: user.id,
+        id: transaction.accountDestinationId,
+      },
+    });
+
+    if (!sourceAccount || !destinationAccount) {
+      throw new Error('Source or destination account not found');
+    }
+
+    // Create the transfer transaction for the source account
+    await this.prismaService.transactions.create({
+      data: {
+        vendor: transaction.vendor,
+        account_id: transaction.accountId,
+        amount: -transaction.amount, // Negative for transfer out
+        type: TransactionTypes.TRANSFER,
+        category: transaction.category,
+        accountDestination: transaction.accountDestinationId,
+      },
+    });
+
+    // Create the transfer transaction for the destination account
+    await this.prismaService.transactions.create({
+      data: {
+        vendor: transaction.vendor,
+        account_id: transaction.accountDestinationId!,
+        amount: transaction.amount, // Positive for transfer in
+        type: TransactionTypes.TRANSFER,
+        category: transaction.category,
+        accountDestination: transaction.accountId,
+      },
+    });
+
+    // Update the balances of both accounts
+    await this.updateAccountBalance(user, transaction.accountId, -transaction.amount);
+    await this.updateAccountBalance(user, transaction.accountDestinationId!, transaction.amount);
   }
 
   async updateAccountBalance(user: User, accountId: number, editAmount: number) {

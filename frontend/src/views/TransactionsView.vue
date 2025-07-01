@@ -29,7 +29,7 @@ let since1st = computed(() => {
   transactionsSince1st.value = filteredtransactionsSince1st
 
   let total = filteredtransactionsSince1st.reduce((sum, transaction) => {
-    return sum + (transaction.type === TransactionTypes.INCOME ? Number(transaction.amount) : -Number(transaction.amount))
+    return sum + Number(transaction.amount)
   }, 0)
 
   let returnTotal
@@ -128,7 +128,6 @@ function groupTransactionsByRelativeDate(transactions: Transaction[]): GroupedTr
 }
 
 let groupedTransactions = computed(() => {
-  console.log('[Computed] groupedTransactions')
   if (!data.value) return { Today: [], Yesterday: [], 'This Week': [], 'Last Week': [], Other: {} }
   let ordered = data.value.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
   return groupTransactionsByRelativeDate(ordered)

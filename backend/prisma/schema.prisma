@@ -29,7 +29,9 @@ model accounts {
   updated_at  DateTime? @default(now()) @db.Timestamp(6)
 
   user users @relation(fields: [user_id], references: [id])
-  transactions transactions[]
+  transactions transactions[] // Transactions where this account is the source
+
+  destinationTransactions transactions[] @relation("DestinationAccount") 
 }
 
 
@@ -41,8 +43,10 @@ model transactions {
   type        String    @db.VarChar(50)
   category    String?   @db.VarChar(100)
   date        DateTime? @default(now()) @db.Timestamp(6)
+  accountDestination Int? @db.Integer
 
   account accounts @relation(fields: [account_id], references: [id])
+  destinationAccount accounts? @relation("DestinationAccount", fields: [accountDestination], references: [id])
 }
 
 model refresh_tokens {

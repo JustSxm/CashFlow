@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import type { Transaction } from '@shared/Transaction'
-import { CalendarSync, Car, Cat, Hamburger, House, PawPrint, Store, Trash, Trash2, Utensils } from 'lucide-vue-next'
+import { ArrowLeftRight, CalendarSync, Car, Cat, Hamburger, House, PawPrint, Store, Trash, Trash2, Utensils } from 'lucide-vue-next'
 import { capitalizeOnlyFirstLetter } from '@/capitalize'
 import { TransactionTypes } from '@shared/TransactionTypes'
 import { Categories } from '@/enums/Categories'
@@ -12,12 +12,9 @@ const props = defineProps<{
   transaction: Transaction
 }>()
 
-const amount =
-  props.transaction.type === TransactionTypes.EXPENSE
-    ? `-${Number(props.transaction.amount).toFixed(2)}$`
-    : `+${Number(props.transaction.amount).toFixed(2)}$`
+const amount = `${Number(props.transaction.amount).toFixed(2)}$`
 
-const color = props.transaction.type === TransactionTypes.EXPENSE ? 'text-red-500' : 'text-green-500'
+const color = props.transaction.amount > 0 ? 'text-green-500' : 'text-red-500'
 
 const formattedDate = new Intl.DateTimeFormat('en-GB', {
   day: '2-digit',
@@ -27,34 +24,40 @@ const formattedDate = new Intl.DateTimeFormat('en-GB', {
 
 let icon: FunctionalComponent
 let iconColor: string
-switch (props.transaction.category) {
-  case Categories.CAR:
-    icon = Car
-    iconColor = 'bg-orange-100'
-    break
-  case Categories.FOOD:
-    icon = Hamburger
-    iconColor = 'bg-purple-100'
-    break
-  case Categories.HOUSING:
-    icon = House
-    iconColor = 'bg-red-400'
-    break
-  case Categories.PETS:
-    icon = PawPrint
-    iconColor = 'bg-teal-100'
-    break
-  case Categories.RESTAURANT:
-    icon = Utensils
-    iconColor = 'bg-yellow-100'
-    break
-  case Categories.SUBSCRIPTIONS:
-    icon = CalendarSync
-    iconColor = 'bg-green-100'
-    break
-  default:
-    icon = Store
-    iconColor = 'bg-blue-300'
+
+if (props.transaction.type === TransactionTypes.TRANSFER) {
+  icon = ArrowLeftRight
+  iconColor = 'bg-green-500'
+} else {
+  switch (props.transaction.category) {
+    case Categories.CAR:
+      icon = Car
+      iconColor = 'bg-orange-100'
+      break
+    case Categories.FOOD:
+      icon = Hamburger
+      iconColor = 'bg-purple-100'
+      break
+    case Categories.HOUSING:
+      icon = House
+      iconColor = 'bg-red-400'
+      break
+    case Categories.PETS:
+      icon = PawPrint
+      iconColor = 'bg-teal-100'
+      break
+    case Categories.RESTAURANT:
+      icon = Utensils
+      iconColor = 'bg-yellow-100'
+      break
+    case Categories.SUBSCRIPTIONS:
+      icon = CalendarSync
+      iconColor = 'bg-green-100'
+      break
+    default:
+      icon = Store
+      iconColor = 'bg-blue-300'
+  }
 }
 
 const emit = defineEmits<{
