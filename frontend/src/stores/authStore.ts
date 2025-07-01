@@ -21,6 +21,10 @@ export const useAuthStore = defineStore(
       refreshToken.value = newRefreshToken
     }
 
+    function isLoggedIn() {
+      return !!accessToken.value
+    }
+
     function clearAuthData() {
       username.value = ''
       accessToken.value = ''
@@ -35,6 +39,7 @@ export const useAuthStore = defineStore(
       setAccessToken,
       setRefreshToken,
       clearAuthData,
+      isLoggedIn,
     }
   },
   {
