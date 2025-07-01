@@ -1,6 +1,19 @@
 <script setup lang="ts">
 import type { Transaction } from '@shared/Transaction'
-import { ArrowLeftRight, CalendarSync, Car, Cat, Hamburger, House, PawPrint, Store, Trash, Trash2, Utensils } from 'lucide-vue-next'
+import {
+  ArrowLeftRight,
+  CalendarSync,
+  Car,
+  Cat,
+  Hamburger,
+  House,
+  PawPrint,
+  PiggyBank,
+  Store,
+  Trash,
+  Trash2,
+  Utensils,
+} from 'lucide-vue-next'
 import { capitalizeOnlyFirstLetter } from '@/capitalize'
 import { TransactionTypes } from '@shared/TransactionTypes'
 import { Categories } from '@/enums/Categories'
@@ -28,6 +41,9 @@ let iconColor: string
 if (props.transaction.type === TransactionTypes.TRANSFER) {
   icon = ArrowLeftRight
   iconColor = 'bg-green-500'
+} else if (props.transaction.type === TransactionTypes.SAVING) {
+  icon = PiggyBank
+  iconColor = 'bg-blue-500'
 } else {
   switch (props.transaction.category) {
     case Categories.CAR:

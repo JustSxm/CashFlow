@@ -1,19 +1,21 @@
 <script setup lang="ts">
-import { DollarSign, MoveRight, PiggyBank, House, ChartColumnStacked } from 'lucide-vue-next'
+import { DollarSign, MoveRight, PiggyBank, House, ChartColumnStacked, Settings } from 'lucide-vue-next'
 import { onMounted, ref, computed } from 'vue'
 import { fetchWithAuth } from '@/fetchWithAuth'
 import { getOrdinal } from '@/date'
 import { capitalize } from '@/capitalize'
 import { ApiEndpoints } from '@/enums/APIEndpoints'
 import { DateFilters } from '@/enums/DateFilter'
-import type { GroupedTransactions, Transaction as TransactionType } from '@shared/Transaction'
+import type { Transaction as TransactionType } from '@shared/Transaction'
 import { TransactionTypes } from '@shared/TransactionTypes'
 import Transaction from '@/components/Transaction.vue'
 import Pill from '@/components/Pill.vue'
+import type { Settings as SettingsType } from '@shared/Settings'
 
 let data = ref<TransactionType[] | null>(null)
 let lastThreeTransactions = ref<TransactionType[]>([])
 let selectedFilter = ref()
+let startOfWeek = ref(1)
 const transactionsInFilter = ref<TransactionType[]>([])
 
 let totalIncome = computed(() => {
@@ -73,6 +75,10 @@ async function onFilterChanged(filter: string) {
 
   const today = new Date()
 
+  // startOfWeek (the end date is the next based on settings) ex: if startOfWeek is 1 (Monday), the end date will be the upcoming Monday
+  const startOfWeekOffset = (today.getDay() + 7 - startOfWeek.value) % 7
+  today.setDate(today.getDate() + startOfWeekOffset)
+
   const oneWeekAgo = new Date(today)
   oneWeekAgo.setDate(today.getDate() - 7)
 
@@ -119,6 +125,10 @@ const dateRangeLabel = computed(() => {
   const end = new Date()
   let start = new Date()
 
+  // startOfWeek (the end date is the next based on settings) ex: if startOfWeek is 1 (Monday), the end date will be the upcoming Monday
+  const startOfWeekOffset = (end.getDay() + 7 - startOfWeek.value) % 7
+  end.setDate(end.getDate() + startOfWeekOffset)
+
   switch (selectedFilter.value) {
     case DateFilters.WEEK:
       start.setDate(end.getDate() - 6)
@@ -145,19 +155,57 @@ const dateRangeLabel = computed(() => {
   const startDay = getOrdinal(start.getDate())
   const endDay = getOrdinal(end.getDate())
   const sameMonth = start.getMonth() === end.getMonth()
-  const startMonth = start.toLocaleString('default', { month: 'short' })
-  const endMonth = end.toLocaleString('default', { month: 'short' })
+  const startMonth = start.toLocaleString('en-US', { month: 'short' })
+  const endMonth = end.toLocaleString('en-US', { month: 'short' })
 
   return sameMonth ? `${startDay} - ${endDay} ${endMonth}` : `${startDay} ${startMonth} - ${endDay} ${endMonth}`
 })
 
+async function fetchSettings() {
+  const response = await fetchWithAuth(ApiEndpoints.SETTINGS)
+  const settings: SettingsType = await response.json()
+  let settingsStartOfWeek = settings.start_of_the_week || 1 // Default to Monday
+  let settingsDefaultDashboardView = settings.default_dashboard_view || 1 // Default to 1 Week
+
+  switch (settingsDefaultDashboardView) {
+    case 1:
+      selectedFilter.value = DateFilters.WEEK
+      break
+    case 2:
+      selectedFilter.value = DateFilters.TWO_WEEKS
+      break
+    case 3:
+      selectedFilter.value = DateFilters.MONTH
+      break
+    case 4:
+      selectedFilter.value = DateFilters.THREE_MONTHS
+      break
+    case 5:
+      selectedFilter.value = DateFilters.SIX_MONTHS
+      break
+    case 6:
+      selectedFilter.value = DateFilters.YEAR
+      break
+    default:
+      selectedFilter.value = DateFilters.ALL
+  }
+  startOfWeek.value = settingsStartOfWeek
+  onFilterChanged(selectedFilter.value)
+}
+
 onMounted(() => {
   fetchTransactions()
-  onFilterChanged(DateFilters.WEEK)
+  fetchSettings()
 })
 </script>
 
 <template>
+  <div class="flex w-full justify-end px-3 mt-2 mb-2 items-center">
+    <div @click="$router.push('/settings')" class="flex items-center cursor-pointer">
+      <Settings class="text-green-500 cursor-pointer" strokeWidth="2" />
+      <span class="text-green-500 font-inter text-sm ml-2">Settings</span>
+    </div>
+  </div>
   <div class="px-3 py-2 flex flex-col gap-3">
     <div class="flex overflow-auto flex-nowrap gap-2 no-scrollbar">
       <div v-for="filter in Object.values(DateFilters)" :key="filter" class="text-nowrap">
@@ -185,16 +233,20 @@ onMounted(() => {
           <DollarSign class="text-red-200" strokeWidth="1" />
         </div>
         <h1 class="font-inter text-black/50 text-base">Spendings</h1>
-        <h2 class="font-inter text-black text-lg font-bold">{{ -totalSpendings }} $</h2>
-        <MoveRight class="text-black" strokeWidth="1" />
+        <div class="flex items-center justify-between">
+          <h2 class="font-inter text-black text-lg font-bold">{{ -totalSpendings }} $</h2>
+          <MoveRight class="text-black" strokeWidth="1" />
+        </div>
       </div>
       <div class="w-1/2 flex flex-col gap-1 p-3 shadow-xl rounded-xl bg-white border border-black/5">
         <div class="w-12 h-12 bg-green-900 rounded-full flex justify-center items-center">
           <PiggyBank class="text-green-200" strokeWidth="1" />
         </div>
         <h1 class="font-inter text-black/50 text-base">Earnings</h1>
-        <h2 class="font-inter text-black text-lg font-bold">{{ totalIncome }} $</h2>
-        <MoveRight class="text-black" strokeWidth="1" />
+        <div class="flex items-center justify-between">
+          <h2 class="font-inter text-black text-lg font-bold">{{ totalIncome }} $</h2>
+          <MoveRight class="text-black" strokeWidth="1" />
+        </div>
       </div>
     </div>
 
@@ -204,16 +256,20 @@ onMounted(() => {
           <House class="text-blue-900" strokeWidth="1" />
         </div>
         <h1 class="font-inter text-black/50 text-base">Savings</h1>
-        <h2 class="font-inter text-black text-lg font-bold">-- $</h2>
-        <MoveRight class="text-black" strokeWidth="1" />
+        <div class="flex items-center justify-between">
+          <h2 class="font-inter text-black text-lg font-bold">-- $</h2>
+          <MoveRight class="text-black" strokeWidth="1" />
+        </div>
       </div>
       <div class="w-1/2 flex flex-col gap-1 p-3 shadow-xl rounded-xl bg-white border border-black/5">
         <div class="w-12 h-12 bg-pink-200 rounded-full flex justify-center items-center">
           <ChartColumnStacked class="text-pink-900" strokeWidth="1" />
         </div>
         <h1 class="font-inter text-black/50 text-base">Categories</h1>
-        <h2 class="font-inter text-black text-lg font-bold">{{ categoryWithMostSpendings }}</h2>
-        <MoveRight class="text-black" strokeWidth="1" />
+        <div class="flex items-center justify-between">
+          <h2 class="font-inter text-black text-lg font-bold">{{ categoryWithMostSpendings }}</h2>
+          <MoveRight class="text-black" strokeWidth="1" />
+        </div>
       </div>
     </div>
 
@@ -227,9 +283,6 @@ onMounted(() => {
       </div>
     </div>
   </div>
-  !
-
-  <RouterLink to="/accounts">Go to accounts</RouterLink>
 </template>
 
 <style scoped>

@@ -16,6 +16,8 @@ model users {
 
   refresh_tokens refresh_tokens[]
   accounts accounts[]
+
+  settings settings?
 }
 
 model accounts {
@@ -47,6 +49,18 @@ model transactions {
 
   account accounts @relation(fields: [account_id], references: [id])
   destinationAccount accounts? @relation("DestinationAccount", fields: [accountDestination], references: [id])
+}
+
+
+model settings {
+  id                Int       @id @default(autoincrement())
+  user_id           Int       @db.Integer @unique
+  saving_mode       Boolean   @default(false)
+  percentage        Int       @default(0) // Percentage for saving mode
+  start_of_the_week Int       @default(1)
+  default_dashboard_view Int? @default(1)
+
+  user users @relation(fields: [user_id], references: [id])
 }
 
 model refresh_tokens {

@@ -4,6 +4,7 @@ import { PrismaService } from 'prisma/prisma.service';
 import { AccountDTO } from '@shared/Account';
 import { TransactionDTO } from '@shared/Transaction';
 import { TransactionTypes } from '@shared/TransactionTypes';
+import { SettingsDTO } from '@shared/Settings';
 
 @Injectable()
 export class MeService {
@@ -57,10 +58,28 @@ export class MeService {
     }
 
     await this.updateAccountBalance(user, transaction.accountId, editAmount);
+
+    const settings = await this.prismaService.settings.findFirst({
+      where: { user_id: user.id },
+    });
+
+    if (settings && settings.saving_mode && transaction.type === TransactionTypes.INCOME) {
+      const savingAmount = (transaction.amount * settings.percentage) / 100;
+      await this.prismaService.transactions.create({
+        data: {
+          vendor: transaction.vendor,
+          account_id: transaction.accountId,
+          amount: -savingAmount, // Saving is considered an expense
+          type: TransactionTypes.SAVING,
+          category: transaction.category,
+          accountDestination: null, // No destination for saving transactions
+        },
+      });
+      await this.updateAccountBalance(user, transaction.accountId, -savingAmount);
+    }
   }
 
   async createTransferTransaction(user: User, transaction: TransactionDTO) {
-    console.log('Creating transfer transaction:', transaction);
     if (transaction.type === TransactionTypes.TRANSFER && !transaction.accountDestinationId) {
       throw new Error('Transfer transactions must have a destination account');
     }
@@ -208,5 +227,30 @@ export class MeService {
     });
 
     return await this.getTransactions(user);
+  }
+
+  async updateSettings(user: any, settings: SettingsDTO) {
+    await this.prismaService.settings.upsert({
+      where: { user_id: user.id },
+      update: {
+        saving_mode: settings.savingMode,
+        percentage: settings.percentage,
+        start_of_the_week: settings.startOfTheWeek,
+        default_dashboard_view: settings.defaultDashboardView,
+      },
+      create: {
+        user_id: user.id,
+        saving_mode: settings.savingMode,
+        percentage: settings.percentage,
+        start_of_the_week: settings.startOfTheWeek,
+        default_dashboard_view: settings.defaultDashboardView,
+      },
+    });
+  }
+
+  async getSettings(user: any) {
+    return await this.prismaService.settings.findFirst({
+      where: { user_id: user.id },
+    });
   }
 }

@@ -3,6 +3,7 @@ import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { MeService } from './me.service';
 import { TransactionDTO } from '@shared/Transaction';
 import { AccountDTO } from '@shared/Account';
+import { SettingsDTO } from '@shared/Settings';
 
 @Controller('me')
 @UseGuards(JwtAuthGuard)
@@ -49,5 +50,18 @@ export class MeController {
   async getAccounts(@Request() req) {
     const user = req.user;
     return this.meService.getAccounts(user);
+  }
+
+  @Post('settings')
+  async settings(@Request() req, @Body() settings: SettingsDTO) {
+    const user = req.user;
+
+    await this.meService.updateSettings(user, settings);
+  }
+
+  @Get('settings')
+  async getSettings(@Request() req) {
+    const user = req.user;
+    return this.meService.getSettings(user);
   }
 }

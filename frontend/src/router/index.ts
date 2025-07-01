@@ -7,6 +7,7 @@ enum RouteNames {
   Dashboard = 'Dashboard',
   Transactions = 'Transactions',
   Accounts = 'Accounts',
+  Settings = 'Settings',
 }
 
 const router = createRouter({
@@ -32,6 +33,11 @@ const router = createRouter({
       path: '/accounts',
       name: RouteNames.Accounts,
       component: () => import('@/views/AccountListView.vue'),
+    },
+    {
+      path: '/settings',
+      name: RouteNames.Settings,
+      component: () => import('@/views/SettingsView.vue'),
     },
   ],
 })

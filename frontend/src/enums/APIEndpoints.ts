@@ -5,4 +5,5 @@ export const ApiEndpoints = {
   REFRESH: `${api}/auth/refresh`,
   ACCOUNTS: `${api}/me/accounts`,
   TRANSACTIONS: `${api}/me/transactions`,
+  SETTINGS: `${api}/me/settings`,
 } as const

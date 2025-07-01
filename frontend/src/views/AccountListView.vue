@@ -32,7 +32,7 @@ onMounted(async () => {
 <template>
   <AddAccountPopup v-if="showAddTransactionPopup" :onClose="close" />
   <div class="py-2 px-4">
-    <BackButton :link="RouteNames.Dashboard" />
+    <BackButton :link="RouteNames.Settings" />
   </div>
   <div v-if="loading" class="flex items-center justify-center h-screen">
     <LoaderCircle class="w-12 h-12 text-green-500 animate-spin" />
