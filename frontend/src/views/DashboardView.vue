@@ -34,6 +34,14 @@ let totalSpendings = computed(() => {
     .reduce((sum, transaction) => sum + Number(transaction.amount), 0)
 })
 
+let totalSavings = computed(() => {
+  const transactions = transactionsInFilter.value
+  if (!transactions || transactions.length === 0) return 0
+  return transactionsInFilter.value
+    .filter((transaction) => transaction.type === TransactionTypes.SAVING)
+    .reduce((sum, transaction) => sum + Number(transaction.amount), 0)
+})
+
 const categoryWithMostSpendings = computed(() => {
   const transactions = transactionsInFilter.value
   if (!transactions || transactions.length === 0) return 'None'
@@ -257,7 +265,7 @@ onMounted(() => {
         </div>
         <h1 class="font-inter text-black/50 text-base">Savings</h1>
         <div class="flex items-center justify-between">
-          <h2 class="font-inter text-black text-lg font-bold">-- $</h2>
+          <h2 class="font-inter text-black text-lg font-bold">{{ -totalSavings }} $</h2>
           <MoveRight class="text-black" strokeWidth="1" />
         </div>
       </div>
