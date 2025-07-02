@@ -2,7 +2,7 @@
 import TransactionGraph from '@/components/TransactionGraph.vue'
 import TransactionGroup from '@/components/TransactionGroup.vue'
 import Button from '@/components/Button.vue'
-import { ArrowUp, ArrowDown, Funnel, LoaderCircle } from 'lucide-vue-next'
+import { ArrowUp, ArrowDown, Funnel, LoaderCircle, ArrowLeftRight } from 'lucide-vue-next'
 import AddTransactionPopup from '@/components/popups/AddTransactionPopup.vue'
 import { computed, onMounted, ref, watch } from 'vue'
 import { fetchWithAuth } from '@/fetchWithAuth'
@@ -11,8 +11,10 @@ import type { GroupedTransactions, Transaction } from '@shared/Transaction'
 import { TransactionTypes } from '@shared/TransactionTypes'
 import BackButton from '@/components/BackButton.vue'
 import { RouteNames } from '@/router'
+import AddTransferPopup from '@/components/popups/AddTransferPopup.vue'
 
 let showAddTransactionPopup = ref(false)
+let showAddTransferPopup = ref(false)
 let loading = ref(true)
 let data = ref<Transaction[] | null>(null)
 let transactionsSince1st = ref<Transaction[] | null>(null)
@@ -60,9 +62,16 @@ async function close() {
   await fetchTransactions()
 }
 
+async function closeTransfer() {
+  showAddTransferPopup.value = false
+  transactionInEditMode.value = undefined
+  await fetchTransactions()
+}
+
 async function fetchTransactions() {
   const response = await fetchWithAuth(ApiEndpoints.TRANSACTIONS)
   data.value = await response.json()
+  console.log('Fetched transactions:', data.value)
 }
 
 async function deleteTransaction(id: number) {
@@ -75,7 +84,12 @@ async function deleteTransaction(id: number) {
 
 async function editTransaction(transaction: Transaction) {
   transactionInEditMode.value = transaction
-  showAddTransactionPopup.value = true
+
+  if (transaction.type === TransactionTypes.TRANSFER) {
+    showAddTransferPopup.value = true
+  } else {
+    showAddTransactionPopup.value = true
+  }
 }
 
 function groupTransactionsByRelativeDate(transactions: Transaction[]): GroupedTransactions {
@@ -136,6 +150,7 @@ let groupedTransactions = computed(() => {
 
 <template>
   <AddTransactionPopup v-if="showAddTransactionPopup" :onClose="close" :transaction="transactionInEditMode" />
+  <AddTransferPopup v-if="showAddTransferPopup" :onClose="closeTransfer" :transaction="transactionInEditMode" />
   <div class="py-2 px-4">
     <BackButton :link="RouteNames.Dashboard" />
   </div>
@@ -185,6 +200,11 @@ let groupedTransactions = computed(() => {
 
     <div class="fixed bottom-0 flex w-full p-4 gap-3">
       <Button label="Add Transaction" class="flex-1 shadow-lg" @click="showAddTransactionPopup = true" />
+      <Button class="!w-12 relative shadow-lg" @click="showAddTransferPopup = true">
+        <div class="text-white absolute inset-0 flex items-center justify-center">
+          <ArrowLeftRight :size="24" />
+        </div>
+      </Button>
       <Button class="!w-12 relative shadow-lg">
         <div class="text-white absolute inset-0 flex items-center justify-center">
           <Funnel :size="24" />

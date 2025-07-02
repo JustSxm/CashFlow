@@ -11,15 +11,13 @@ export class TransactionDTO {
 	type: string;
 	@IsNotEmpty()
 	category: string;
-	@IsOptional()
-	accountDestinationId?: number; // Optional for transfers
 }
 
 export class Transaction {
 	id: number;
 	vendor: string;
 	account_id: number;
-	account_destination_id?: number; // Optional for transfers
+	accountDestination?: number; // Optional for transfers
 	amount: number;
 	type: string;
 	category: string;
@@ -33,3 +31,12 @@ export type GroupedTransactions = {
 	"Last Week": Transaction[];
 	Other: Record<string, Transaction[]>; // e.g., "June 15": [...]
 };
+
+export class TransferDTO {
+	@IsNotEmpty()
+	accountId: number;
+	@IsNotEmpty()
+	amount: number;
+	@IsNotEmpty()
+	accountDestinationId: number; // Required for transfers
+}

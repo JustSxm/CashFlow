@@ -25,7 +25,6 @@ let props = defineProps<{
 let vendor = ref('')
 let amount = ref('')
 let account = ref<number | null>(null)
-let accountTo = ref<number | undefined>(undefined)
 let type = ref('')
 let category = ref('')
 
@@ -33,7 +32,6 @@ if (props.transaction) {
   vendor.value = props.transaction.vendor
   amount.value = parseFloat(props.transaction.amount.toString()).toFixed(2)
   account.value = props.transaction.account_id
-  accountTo.value = props.transaction.account_destination_id || undefined
   type.value = props.transaction.type
   category.value = props.transaction.category
 }
@@ -43,14 +41,7 @@ function onCategoryChanged(value: string) {
 }
 
 async function createTransaction() {
-  if (
-    !vendor.value ||
-    !amount.value ||
-    !type.value ||
-    !category.value ||
-    !account.value ||
-    (type.value === TransactionTypes.TRANSFER && !accountTo.value)
-  ) {
+  if (!vendor.value || !amount.value || !type.value || !category.value || !account.value) {
     alert('Please fill in all fields.')
     return
   }
@@ -66,10 +57,7 @@ async function createTransaction() {
     amount: parseFloat(amount.value.replace(/[^0-9.-]+/g, '')),
     type: type.value,
     category: category.value,
-    accountDestinationId: type.value === TransactionTypes.TRANSFER ? Number(accountTo.value) : undefined,
   }
-
-  console.log('Creating transaction:', transaction)
 
   await fetchWithAuth(ApiEndpoints.TRANSACTIONS, {
     method: 'POST',
@@ -88,7 +76,6 @@ async function editTransaction() {
     amount: parseFloat(amount.value.replace(/[^0-9.-]+/g, '')),
     type: type.value,
     category: category.value,
-    accountDestinationId: type.value === TransactionTypes.TRANSFER ? Number(accountTo.value) : undefined,
   }
 
   await fetchWithAuth(`${ApiEndpoints.TRANSACTIONS}/${props.transaction.id}`, {
@@ -168,23 +155,7 @@ onMounted(async () => {
               <Upload :size="16" strokeWidth="2" class="inline-block mr-1" />
               Income
             </div>
-            <div
-              :class="[
-                type == TransactionTypes.TRANSFER
-                  ? 'bg-blue-900 text-blue-200 border-blue-500'
-                  : 'bg-blue-200 text-blue-900 border-blue-500',
-                ' h-8 px-3 py-1.5  flex justify-center items-center border rounded-base w-full cursor-pointer duration-200',
-              ]"
-              @click="type = TransactionTypes.TRANSFER"
-            >
-              <ArrowLeftRight :size="16" strokeWidth="2" class="inline-block mr-1" />
-              Transfer
-            </div>
           </div>
-        </div>
-        <div class="px-4" v-if="type === TransactionTypes.TRANSFER">
-          <FormLabel label="Destination Account"></FormLabel>
-          <GreenDropdown placeholder="Select an account" :options="dropDownOptions" v-model="accountTo"> </GreenDropdown>
         </div>
         <div class="px-4">
           <FormLabel label="Category"></FormLabel>

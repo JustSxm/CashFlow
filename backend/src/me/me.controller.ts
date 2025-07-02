@@ -1,7 +1,7 @@
 import { Controller, Post, UseGuards, Request, Get, Delete, Param, ParseIntPipe, Body, Put } from '@nestjs/common';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { MeService } from './me.service';
-import { TransactionDTO } from '@shared/Transaction';
+import { TransactionDTO, TransferDTO } from '@shared/Transaction';
 import { AccountDTO } from '@shared/Account';
 import { SettingsDTO } from '@shared/Settings';
 
@@ -63,5 +63,20 @@ export class MeController {
   async getSettings(@Request() req) {
     const user = req.user;
     return this.meService.getSettings(user);
+  }
+
+  @Post('transfer')
+  async transfer(@Request() req, @Body() transfer: TransferDTO) {
+    const user = req.user;
+
+    await this.meService.createTransfer(user, transfer);
+  }
+
+  @Put('transfer/:id')
+  async updateTransfer(@Request() req, @Param('id', ParseIntPipe) id: number, @Body() transfer: TransferDTO) {
+    const user = req.user;
+
+    await this.meService.updateTransfer(user, id, transfer);
+    return await this.meService.getTransactions(user);
   }
 }
