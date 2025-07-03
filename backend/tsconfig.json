@@ -10,7 +10,7 @@
     "paths": {
       "@shared/*": ["../../shared/dist/*"]
     },
-    "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.app.tsbuildinfo"
+    "tsBuildInfoFile": "dist/tsconfig.backend.tsbuildinfo"
   },
 
   "include": ["src/**/*.ts", "**/*.ts"],

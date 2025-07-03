@@ -5,8 +5,8 @@
 		"rootDir": "src",
 		"baseUrl": "src",
 		"composite": true,
-		"tsBuildInfoFile": "./node_modules/.tmp/tsconfig.app.tsbuildinfo"
+		"declaration": true,
+		"tsBuildInfoFile": "dist/tsconfig.shared.tsbuildinfo"
 	},
-	"include": ["src/**/*"],
-	"exclude": ["dist"]
+	"include": ["src/**/*"]
 }

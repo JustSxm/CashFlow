@@ -1,0 +1,45 @@
+# syntax=docker/dockerfile:1.4
+
+###################################
+# 1️⃣ Monorepo build (shared + backend)
+FROM node:22.16.0 AS monorepo-build
+WORKDIR /repo
+
+COPY --from=root . . 
+
+# Install deps for whole repo (assuming each package has its own package.json)
+# You can scope this down if you use workspaces or only need backend+shared
+RUN npm install -w shared -w frontend
+
+# Build shared first, then backend via project references
+# This relies on your root tsconfig.json having references to ["shared","backend"]
+RUN npm run build:shared   
+
+ENV VITE_API_BASE_URL=http://192.168.2.200:3001
+RUN npm run build:frontend  
+
+# At this point you should have /repo/shared/dist and /repo/backend/dist
+
+###################################
+# 2️⃣ Runtime image
+FROM node:22.16.0 AS runtime
+WORKDIR /app
+
+# Copy only runtime artifacts
+COPY --from=monorepo-build /repo/frontend/dist ./dist
+COPY --from=monorepo-build /repo/shared/dist ../shared/dist
+
+# Copy frontends package.json + lockfile to install only prod‑deps
+COPY package*.json ./
+RUN npm install -g http-server
+RUN npm install --production
+
+WORKDIR /shared
+COPY --from=monorepo-build /repo/shared/package*.json ./
+RUN npm install --production
+
+WORKDIR /app
+
+
+EXPOSE 8080
+CMD ["http-server", "dist"]

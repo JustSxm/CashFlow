@@ -1,0 +1,65 @@
+name: cashflow
+
+services:
+    database:
+        container_name: database
+        image: postgres:17.5
+        environment:
+            POSTGRES_DB: cashflow
+            POSTGRES_USER: admin
+            POSTGRES_PASSWORD: admin
+        ports:
+            - "5432:5432"
+        volumes:
+            - ./docker/pgdata:/var/lib/postgresql/data
+        healthcheck:
+            test: ["CMD-SHELL", "pg_isready -U admin -d cashflow"]
+            interval: 3s
+            timeout: 2s
+            retries: 5
+
+    pgadmin:
+        image: dpage/pgadmin4
+        container_name: pgadmin
+        restart: always
+        environment:
+            PGADMIN_DEFAULT_EMAIL: admin@admin.com
+            PGADMIN_DEFAULT_PASSWORD: admin
+        ports:
+            - "3002:80"
+        depends_on:
+            - database
+        volumes:
+            - ./docker/pgadmin_data:/var/lib/pgadmin
+
+    backend:
+        image: cashflow-backend:latest
+        container_name: backend
+        build:
+            context: backend
+            dockerfile: Dockerfile.prod
+            additional_contexts:
+                shared: ./shared
+                root: ./
+        environment:
+            DATABASE_URL: "postgres://admin:admin@database:5432/cashflow?sslmode=disable"
+            SECRET_JWT_KEY: "5Cru*G6NE$yN6mbrBO%"
+            SECRET_REFRESH_JWT_KEY: "q!5ieMrM%iZOC5Z*RcV"
+            NODE_ENV: production
+        ports:
+            - "3001:3001"
+        depends_on:
+            database:
+                condition: service_healthy
+
+    frontend:
+        image: cashflow-frontend:latest
+        container_name: frontend
+        build:
+            context: frontend
+            dockerfile: Dockerfile.prod
+            additional_contexts:
+                shared: ./shared
+                root: ./
+        ports:
+            - "3000:8080"

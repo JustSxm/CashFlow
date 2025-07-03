@@ -10,7 +10,10 @@
 		"dev": "docker compose up -d && concurrently -n SHARED,BACKEND,FRONTEND -c yellow,cyan,magenta \"npm:shared\" \"npm:backend\" \"npm:frontend\"",
 		"shared": "cd shared && npm run watch",
 		"backend": "cd backend && npm run dev",
-		"frontend": "cd frontend && npm run dev"
+		"frontend": "cd frontend && npm run dev",
+		"build:backend": "cd backend && npm run build",
+		"build:shared": "cd shared && npm run build",
+		"build:frontend": "cd frontend && npm run build"
 	},
 	"devDependencies": {
 		"concurrently": "^9.2.0"
