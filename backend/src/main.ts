@@ -5,7 +5,14 @@ import { ValidationPipe } from '@nestjs/common';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   app.enableCors({
-    origin: ['http://192.168.2.15:3000', 'http://192.168.1.200:3000', 'http://localhost:3000'],
+    origin: (origin, callback) => {
+      // Allow localhost and any 192.168.x.x IP
+      if (origin && (origin === 'http://localhost' || /^http:\/\/192\.168\.\d+\.\d+/.test(origin))) {
+        callback(null, true); // Allow the request
+      } else {
+        callback(new Error('Not allowed by CORS'), false); // Reject the request
+      }
+    },
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
     credentials: true,
   });
