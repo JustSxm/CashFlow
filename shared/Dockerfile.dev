@@ -1,0 +1,12 @@
+# syntax=docker/dockerfile:1.4
+FROM node:22.16.0 AS shared-build
+WORKDIR /
+COPY --from=root tsconfig.json tsconfig.json
+
+WORKDIR /shared
+COPY . .
+
+RUN npm install
+RUN npm run build
+
+CMD ["npm", "run", "watch"]

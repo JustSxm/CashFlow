@@ -31,3 +31,63 @@ services:
             - database
         volumes:
             - ./docker/pgadmin_data:/var/lib/pgadmin
+
+    shared:
+        image: cashflow-shared:latest
+        container_name: shared
+        build:
+            context: shared
+            dockerfile: Dockerfile.dev
+            additional_contexts:
+                root: ./
+        environment:
+            NODE_ENV: development
+        volumes:
+            - ./shared/src:/shared/src
+            - ./shared/dist:/shared/dist
+
+    backend:
+        image: cashflow-backend:latest
+        container_name: backend
+        build:
+            context: backend
+            dockerfile: Dockerfile.dev
+            additional_contexts:
+                shared: ./shared
+                root: ./
+        environment:
+            DATABASE_URL: "postgres://admin:admin@database:5432/cashflow?sslmode=disable"
+            SECRET_JWT_KEY: "5Cru*G6NE$yN6mbrBO%"
+            SECRET_REFRESH_JWT_KEY: "q!5ieMrM%iZOC5Z*RcV"
+            NODE_ENV: development
+        ports:
+            - "3001:3001"
+        volumes:
+            - ./backend/prisma:/backend/prisma
+            - ./backend/src:/backend/src
+            - ./shared/src:/shared/src
+            - ./shared/dist:/shared/dist
+        depends_on:
+            database:
+                condition: service_healthy
+            shared:
+                condition: service_started
+
+    frontend:
+        container_name: frontend
+        build:
+            context: frontend
+            dockerfile: Dockerfile.dev
+            additional_contexts:
+                shared: ./shared
+                root: ./
+        ports:
+            - "3000:3000"
+        volumes:
+            - ./frontend/src:/frontend/src
+            - ./shared/src:/shared/src
+            - ./shared/dist:/shared/dist
+        depends_on:
+            - backend
+        environment:
+            - FORCE_COLOR=1

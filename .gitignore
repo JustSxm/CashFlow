@@ -3,3 +3,4 @@ pgadmin_data
 node_modules
 *.tsbuildinfo
 dist
+**/prisma/client

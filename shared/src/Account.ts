@@ -20,4 +20,5 @@ export class Account {
 	type!: string;
 	balance!: number;
 	limit!: string;
+	test?: string; // Optional field for testing purposes
 }

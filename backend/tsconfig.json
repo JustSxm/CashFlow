@@ -8,7 +8,8 @@
     "noImplicitAny": false,
     "composite": true,
     "paths": {
-      "@shared/*": ["../../shared/dist/*"]
+      "@shared/*": ["../../shared/dist/*"],
+      "@/prisma/*": ["../prisma/*"]
     },
     "tsBuildInfoFile": "dist/tsconfig.backend.tsbuildinfo"
   },
