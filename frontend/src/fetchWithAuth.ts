@@ -1,6 +1,8 @@
 import { ApiEndpoints } from './enums/APIEndpoints'
 import { useAuthStore } from './stores/authStore'
-import router from './router'
+import router, { RouteNames } from './router'
+
+let refreshPromise: Promise<void> | null = null
 
 export async function fetchWithAuth(url: string, options: RequestInit = {}): Promise<Response> {
   const auth = useAuthStore()
@@ -11,30 +13,40 @@ export async function fetchWithAuth(url: string, options: RequestInit = {}): Pro
   headers.set('Authorization', `Bearer ${token}`)
   headers.set('Content-Type', 'application/json')
 
-  // fetch and if fails, get new tokens with refresh token
   let response = await fetch(url, {
     ...options,
     headers,
+    credentials: 'include',
   })
 
   if (!response.ok && response.status === 401) {
-    let responseRefresh = await fetch(ApiEndpoints.REFRESH, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ refresh_token: auth.refreshToken }),
-    })
+    if (!refreshPromise) {
+      refreshPromise = (async () => {
+        const refreshResponse = await fetch(ApiEndpoints.REFRESH, {
+          method: 'POST',
+          credentials: 'include',
+        })
 
-    if (responseRefresh.ok) {
-      const data = await responseRefresh.json()
-      auth.setAccessToken(data.access_token)
-      auth.setRefreshToken(data.refresh_token)
-      return await fetchWithAuth(url, options)
-    } else {
-      router.push('/login')
-      throw new Error('Unauthorized, please log in again.')
+        if (!refreshResponse.ok) {
+          auth.clearAuthData()
+          router.push({ name: RouteNames.Login })
+        }
+
+        const data = await refreshResponse.json()
+        auth.setAccessToken(data.access_token)
+      })().finally(() => {
+        refreshPromise = null
+      })
     }
+    await refreshPromise
+    const newToken = auth.accessToken
+    headers.set('Authorization', `Bearer ${newToken}`)
+
+    return await fetch(url, {
+      ...options,
+      headers,
+      credentials: 'include',
+    })
   }
 
   return response

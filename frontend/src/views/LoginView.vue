@@ -39,7 +39,6 @@ async function login() {
     let data = await response.json()
     authStore.setUsername(data.username)
     authStore.setAccessToken(data.accessToken)
-    authStore.setRefreshToken(data.refreshToken)
 
     router.push({ name: RouteNames.Dashboard })
   } else {
