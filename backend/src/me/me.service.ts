@@ -329,7 +329,6 @@ export class MeService {
       where: { user_id: user.id },
     });
 
-    console.log(user);
     if (!settings) {
       await this.prismaService.settings.create({
         data: {

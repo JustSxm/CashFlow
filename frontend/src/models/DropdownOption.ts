@@ -1,5 +1,4 @@
-import type { Component, VNode } from 'vue'
-import type { JSX } from 'vue/jsx-runtime'
+import type { Component } from 'vue'
 
 export type DropdownOption = {
   label: string
