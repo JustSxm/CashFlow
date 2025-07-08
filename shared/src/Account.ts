@@ -11,7 +11,7 @@ export class AccountDTO {
 	amount!: number;
 
 	@IsOptional()
-	limit: string;
+	limit: number | null = null;
 }
 
 export class Account {
@@ -19,6 +19,5 @@ export class Account {
 	name!: string;
 	type!: string;
 	balance!: number;
-	limit!: string;
-	test?: string; // Optional field for testing purposes
+	limit!: number;
 }

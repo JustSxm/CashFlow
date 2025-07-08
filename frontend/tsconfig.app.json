@@ -8,7 +8,8 @@
       "@/*": ["./src/*"],
       "@shared/*": ["../shared/src/*"],
       "@/components/*": ["./src/components/*"],
-      "@/views/*": ["./src/views/*"]
+      "@/views/*": ["./src/views/*"],
+      "@/popups/*": ["./src/components/popups/*"]
     }
   },
   "references": [{ "path": "../shared" }]

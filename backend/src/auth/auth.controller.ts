@@ -35,7 +35,6 @@ export class AuthController {
   @Throttle({ default: { limit: 3, ttl: 300000 } })
   @Post('refresh')
   async refresh(@Req() req: Request, @Res({ passthrough: true }) res: Response) {
-    console.log('Refreshing access token');
     const refreshToken = req.cookies['refresh_token'];
 
     if (!refreshToken) {
