@@ -6,7 +6,7 @@ import FormLabel from '@/components/FormLabel.vue'
 import { useRouter } from 'vue-router'
 import { RouteNames } from '@/router'
 import { ApiEndpoints } from '@/enums/APIEndpoints'
-import { ref } from 'vue'
+import { onMounted, ref } from 'vue'
 import { useAuthStore } from '@/stores/authStore'
 import { UserDTO } from '@shared/models'
 
@@ -47,6 +47,12 @@ async function login() {
     return
   }
 }
+
+onMounted(() => {
+  if (authStore.isLoggedIn()) {
+    router.push({ name: RouteNames.Dashboard })
+  }
+})
 </script>
 
 <template>
