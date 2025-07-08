@@ -5,7 +5,7 @@ import { AccountDTO } from '@shared/Account';
 import { TransactionDTO, TransferDTO } from '@shared/Transaction';
 import { TransactionTypes } from '@shared/TransactionTypes';
 import { SettingsDTO } from '@shared/Settings';
-import { Decimal } from '@prisma/client/runtime/library';
+import { AccountTypes } from '@shared/AccountTypes';
 
 @Injectable()
 export class MeService {
@@ -18,9 +18,34 @@ export class MeService {
         name: account.accountName,
         type: account.type,
         balance: account.amount,
-        limit: account.limit,
+        limit: account.type === AccountTypes.CARD ? account.limit : null,
       },
     });
+  }
+
+  async updateAccount(user: User, id: number, account: AccountDTO) {
+    const existingAccount = await this.prismaService.accounts.findFirst({
+      where: {
+        id: id,
+        user_id: user.id,
+      },
+    });
+
+    if (!existingAccount) {
+      throw new Error('Account not found');
+    }
+
+    await this.prismaService.accounts.update({
+      where: { id: id },
+      data: {
+        name: account.accountName,
+        type: account.type,
+        balance: account.amount,
+        limit: account.type === AccountTypes.CARD ? account.limit : null,
+      },
+    });
+
+    return await this.getAccounts(user);
   }
 
   async getAccounts(user: User) {
@@ -28,6 +53,32 @@ export class MeService {
       where: {
         user_id: user.id,
       },
+      orderBy: {
+        created_at: 'asc',
+      },
+    });
+  }
+
+  async deleteAccount(user: any, id: number) {
+    const account = await this.prismaService.accounts.findFirst({
+      where: {
+        id: id,
+        user_id: user.id,
+      },
+    });
+
+    if (!account) {
+      throw new Error('Account not found');
+    }
+
+    await this.prismaService.transactions.deleteMany({
+      where: {
+        account_id: id,
+      },
+    });
+
+    await this.prismaService.accounts.delete({
+      where: { id: id },
     });
   }
 
@@ -273,9 +324,30 @@ export class MeService {
     });
   }
 
-  async getSettings(user: any) {
-    return await this.prismaService.settings.findFirst({
+  async getSettings(user: User) {
+    let settings = await this.prismaService.settings.findFirst({
       where: { user_id: user.id },
     });
+
+    console.log(user);
+    if (!settings) {
+      await this.prismaService.settings.create({
+        data: {
+          user_id: user.id,
+          saving_mode: false,
+          percentage: 10,
+          start_of_the_week: 1,
+          default_dashboard_view: 1,
+        },
+      });
+    } else {
+      return settings;
+    }
+
+    settings = await this.prismaService.settings.findFirst({
+      where: { user_id: user.id },
+    });
+
+    return settings;
   }
 }

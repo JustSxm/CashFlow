@@ -1,60 +1,63 @@
 <script setup lang="ts">
 import { ref } from 'vue'
+import { AccountTypes } from '@shared/AccountTypes'
+import type { Account, AccountDTO } from '@shared/Account'
 import FormLabel from '../FormLabel.vue'
 import GreenInput from '../GreenInput.vue'
-import { Coins, CreditCard, PiggyBank, TriangleAlert } from 'lucide-vue-next'
-import Button from '../Button.vue'
 import RedButton from '../RedButton.vue'
-import { AccountTypes } from '@shared/AccountTypes'
+import Button from '../Button.vue'
+import { CreditCard, Coins, PiggyBank, TriangleAlert } from 'lucide-vue-next'
 import { fetchWithAuth } from '@/fetchWithAuth'
 import { ApiEndpoints } from '@/enums/APIEndpoints'
-import type { AccountDTO } from '@shared/Account'
 
 let props = defineProps<{
   onClose: () => void
+  account: Account
 }>()
 
-const emit = defineEmits<{
-  (e: 'created'): void
+let emit = defineEmits<{
+  (e: 'edited', account: Account[]): void
 }>()
 
-let accountName = ref('')
-let amount = ref('')
-let type = ref<string>(AccountTypes.CHECKING)
-let limit = ref('')
+let accountName = ref(props.account.name)
+let amount = ref(Number(props.account.balance).toFixed(2))
+let type = ref(props.account.type)
+let limit = ref(Number(props.account.limit).toFixed(2))
 
-async function createAccount() {
-  if (!accountName.value || !amount.value || !type.value || (type.value == AccountTypes.CARD && !limit.value)) {
+function onClose() {
+  accountName.value = ''
+  amount.value = '0'
+  type.value = ''
+  limit.value = '0'
+  props.onClose()
+}
+
+async function updateAccount() {
+  if (!accountName.value || !amount.value || !type.value || (type.value === AccountTypes.CARD && !limit.value)) {
     alert('Please fill in all fields.')
     return
   }
 
-  const account: AccountDTO = {
+  const updatedAccount: AccountDTO = {
     accountName: accountName.value,
     amount: parseFloat(amount.value.replace(/[^0-9.-]+/g, '')),
     type: type.value,
-    limit: parseFloat(limit.value.replace(/[^0-9.-]+/g, '')),
+    limit: type.value === AccountTypes.CARD ? parseFloat(limit.value.replace(/[^0-9.-]+/g, '')) : null,
   }
 
-  await fetchWithAuth(ApiEndpoints.ACCOUNTS, {
-    method: 'POST',
-    body: JSON.stringify(account),
+  let response = await fetchWithAuth(ApiEndpoints.ACCOUNT(props.account.id), {
+    method: 'PUT',
+    body: JSON.stringify(updatedAccount),
   })
 
-  accountName.value = ''
-  amount.value = ''
-  type.value = ''
-  limit.value = ''
-
-  emit('created')
-  props.onClose()
+  emit('edited', await response.json())
 }
 </script>
 
 <template>
   <div class="bg-black/50 fixed inset-0 z-40 flex items-center justify-center">
     <div class="absolute bg-white h-auto w-96 border-t-6 border-green-400 mx-auto z-50 p-6">
-      <h1 class="text-xl text-center font-medium">Add Account</h1>
+      <h1 class="text-xl text-center font-medium">Update Account</h1>
       <div class="px-4">
         <FormLabel label="Type"></FormLabel>
         <div class="flex w-full gap-3">
@@ -104,7 +107,7 @@ async function createAccount() {
         </div>
         <div class="flex gap-2 mt-6">
           <RedButton label="Cancel" class="w-full" @click="onClose" />
-          <Button label="Create" class="w-full" @click="createAccount" />
+          <Button label="Update" class="w-full" @click="updateAccount" />
         </div>
       </div>
     </div>

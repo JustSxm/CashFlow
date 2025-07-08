@@ -52,6 +52,19 @@ export class MeController {
     return this.meService.getAccounts(user);
   }
 
+  @Put('accounts/:id')
+  async updateAccount(@Request() req, @Param('id', ParseIntPipe) id: number, @Body() account: AccountDTO) {
+    const user = req.user;
+    return await this.meService.updateAccount(user, id, account);
+  }
+
+  @Delete('accounts/:id')
+  async deleteAccount(@Request() req, @Param('id', ParseIntPipe) id: number) {
+    const user = req.user;
+
+    await this.meService.deleteAccount(user, id);
+  }
+
   @Post('settings')
   async settings(@Request() req, @Body() settings: SettingsDTO) {
     const user = req.user;
