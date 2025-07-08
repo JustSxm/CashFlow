@@ -12,28 +12,8 @@ import { fetchWithAuth } from '@/fetchWithAuth'
 
 let savingMode = ref(false)
 let percentage = ref('0')
-let startOfWeek = ref(1) // Default to Monday
-let defaultDashboardView = ref(1) // Default to 1 Week
-
-function toggleSavingMode(e: Boolean) {
-  updateSettings()
-}
-
-function onPercentageSet(e: string | number) {
-  updateSettings()
-}
-
-function onStartOfWeekSet(e: number | null | undefined) {
-  if (typeof e === 'number') {
-    updateSettings()
-  }
-}
-
-function onDefaultDashboardViewSet(e: number | null | undefined) {
-  if (typeof e === 'number') {
-    updateSettings()
-  }
-}
+let startOfWeek = ref(1)
+let defaultDashboardView = ref(1)
 
 async function updateSettings() {
   const settings: SettingsDTO = {
@@ -53,10 +33,8 @@ async function updateSettings() {
 }
 
 async function fetchSettings() {
-  console.log('Fetching settings...')
   const response = await fetchWithAuth(ApiEndpoints.SETTINGS)
   const settings: Settings = await response.json()
-  console.log('Fetched settings:', settings)
 
   savingMode.value = settings.saving_mode
   percentage.value = settings.percentage.toString()
@@ -91,13 +69,13 @@ onMounted(() => {
         <span class="font-inter text-sm text-black/50">Automatically withhold a percentage of incoming money for savings </span>
       </div>
       <div class="my-auto">
-        <Toggle v-model="savingMode" @update:model-value="toggleSavingMode" />
+        <Toggle v-model="savingMode" @update:model-value="updateSettings" />
       </div>
     </div>
     <div v-if="savingMode" class="mt-2 flex flex-col">
       <span class="font-inter text-sm text-black">Enter Percentage : </span>
       <div class="w-1/2">
-        <GrayInput :type="'number'" placeholder="0" v-model="percentage" @update:model-value="onPercentageSet" />
+        <GrayInput :type="'number'" placeholder="0" v-model="percentage" @update:model-value="updateSettings" />
       </div>
     </div>
     <div class="flex flex-col mt-8">
@@ -120,7 +98,7 @@ onMounted(() => {
             { label: 'Sunday', value: 7, icon: Calendar },
           ]"
           v-model="startOfWeek"
-          @update:model-value="onStartOfWeekSet"
+          @update:model-value="updateSettings"
         />
       </div>
     </div>
@@ -142,7 +120,7 @@ onMounted(() => {
             { label: 'All', value: 7, icon: Calendar },
           ]"
           v-model="defaultDashboardView"
-          @update:model-value="onDefaultDashboardViewSet"
+          @update:model-value="updateSettings"
         />
       </div>
     </div>
