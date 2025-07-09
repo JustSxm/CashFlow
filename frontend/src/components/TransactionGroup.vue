@@ -2,11 +2,14 @@
 import Transaction from '@/components/Transaction.vue'
 import type { Transaction as TransactionType } from '@shared/Transaction'
 
-const props = defineProps<{
+defineProps<{
   label?: string
   transactions?: TransactionType[]
-  onDelete?: (transactionId: number) => void
-  onEdit?: (transaction: TransactionType) => void
+}>()
+
+const emit = defineEmits<{
+  (e: 'delete', transactionId: number): void
+  (e: 'edit', transaction: TransactionType): void
 }>()
 </script>
 
@@ -18,7 +21,7 @@ const props = defineProps<{
       v-for="transaction in transactions"
       :key="transaction.id + transaction.amount + transaction.type + transaction.category + transaction.vendor + transaction.account_id"
     >
-      <Transaction :transaction="transaction" @delete="onDelete" @edit="onEdit" />
+      <Transaction :transaction="transaction" @delete="emit('delete', transaction.id)" @edit="emit('edit', transaction)" />
     </div>
   </div>
 </template>

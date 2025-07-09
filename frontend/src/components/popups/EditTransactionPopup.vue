@@ -14,17 +14,21 @@ import { ApiEndpoints } from '@/enums/APIEndpoints'
 import { fetchWithAuth } from '@/fetchWithAuth'
 import type { DropdownOption } from '@/models/DropdownOption'
 import { AccountTypes } from '@shared/AccountTypes'
-import { TransactionDTO } from '@shared/Transaction'
+import { Transaction, TransactionDTO } from '@shared/Transaction'
 
-const emit = defineEmits<{
-  (e: 'created'): void
+const props = defineProps<{
+  transaction: Transaction
 }>()
 
-let vendor = ref('')
-let amount = ref('')
-let account = ref<number | null>(null)
-let type = ref('')
-let category = ref('')
+const emit = defineEmits<{
+  (e: 'updated'): void
+}>()
+
+let vendor = ref(props.transaction.vendor)
+let amount = ref(parseFloat(props.transaction.amount.toString()).toFixed(2))
+let account = ref<number>(props.transaction.account_id)
+let type = ref(props.transaction.type)
+let category = ref(props.transaction.category)
 const accounts = ref<Account[]>([])
 
 const dropDownOptions = computed<DropdownOption[]>(() => {
@@ -39,22 +43,29 @@ function onCategoryChanged(value: string) {
   category.value = value
 }
 
-async function createTransaction() {
+async function updateTransaction() {
   if (!vendor.value || !amount.value || !type.value || !category.value || !account.value) {
     alert('Please fill in all fields.')
     return
   }
 
+  let positiveAmount = parseFloat(amount.value.replace(/[^0-9.-]+/g, ''))
+
+  if (type.value === TransactionTypes.EXPENSE) {
+    positiveAmount = -positiveAmount
+    console.log('Negative amount for expense:', positiveAmount)
+  }
+
   const transaction: TransactionDTO = {
     vendor: vendor.value,
     accountId: Number(account.value),
-    amount: parseFloat(amount.value.replace(/[^0-9.-]+/g, '')),
+    amount: positiveAmount,
     type: type.value,
     category: category.value,
   }
 
-  await fetchWithAuth(ApiEndpoints.TRANSACTIONS, {
-    method: 'POST',
+  await fetchWithAuth(`${ApiEndpoints.TRANSACTIONS}/${props.transaction.id}`, {
+    method: 'PUT',
     body: JSON.stringify(transaction),
   })
 
@@ -66,7 +77,7 @@ function onClose() {
   amount.value = ''
   type.value = ''
   category.value = ''
-  emit('created')
+  emit('updated')
 }
 
 onMounted(async () => {
@@ -78,7 +89,7 @@ onMounted(async () => {
 <template>
   <div class="bg-black/50 fixed inset-0 z-40 flex items-center justify-center">
     <div class="absolute bg-white h-auto w-96 border-t-6 border-green-400 mx-auto z-50 p-6">
-      <h1 class="text-xl text-center font-medium">Add Transaction</h1>
+      <h1 class="text-xl text-center font-medium">Edit Transaction</h1>
       <div class="flex flex-col gap-6 mt-6">
         <div class="px-4">
           <FormLabel label="Vendor"></FormLabel>
@@ -147,7 +158,7 @@ onMounted(async () => {
         </div>
         <div class="flex gap-2 mt-6">
           <RedButton label="Cancel" class="w-full" @click="onClose" />
-          <Button label="Create" class="w-full" @click="createTransaction" />
+          <Button label="Update" class="w-full" @click="updateTransaction" />
         </div>
       </div>
     </div>

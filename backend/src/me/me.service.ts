@@ -238,13 +238,11 @@ export class MeService {
         },
       });
 
-      // Adjust the account balance
-      let editAmount = transaction.amount;
-      if (transaction.type === TransactionTypes.EXPENSE) {
-        editAmount = -transaction.amount;
-      }
+      // Update the new account balance
+      await this.updateAccountBalance(user, transaction.accountId, transaction.amount);
 
-      await this.updateAccountBalance(user, transaction.accountId, editAmount);
+      // Update the old account balance if the account has changed
+      await this.updateAccountBalance(user, existingTransaction.account_id, -existingTransaction.amount);
     });
 
     return await this.getTransactions(user);

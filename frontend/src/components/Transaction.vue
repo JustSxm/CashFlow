@@ -1,19 +1,6 @@
 <script setup lang="ts">
 import type { Transaction } from '@shared/Transaction'
-import {
-  ArrowLeftRight,
-  CalendarSync,
-  Car,
-  Cat,
-  Hamburger,
-  House,
-  PawPrint,
-  PiggyBank,
-  Store,
-  Trash,
-  Trash2,
-  Utensils,
-} from 'lucide-vue-next'
+import { ArrowLeftRight, CalendarSync, Car, Hamburger, House, PawPrint, PiggyBank, Store, Trash2, Utensils } from 'lucide-vue-next'
 import { capitalizeOnlyFirstLetter } from '@/capitalize'
 import { TransactionTypes } from '@shared/TransactionTypes'
 import { Categories } from '@/enums/Categories'
@@ -29,8 +16,8 @@ const amount = `${Number(props.transaction.amount).toFixed(2)}$`
 
 const color = props.transaction.amount > 0 ? 'text-green-500' : 'text-red-500'
 
-const formattedDate = new Intl.DateTimeFormat('en-GB', {
-  day: '2-digit',
+const formattedDate = new Intl.DateTimeFormat('en-CA', {
+  day: 'numeric',
   month: 'long',
   year: 'numeric',
 }).format(new Date(props.transaction.date))

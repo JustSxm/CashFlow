@@ -17,7 +17,7 @@ export class Transaction {
 	id: number;
 	vendor: string;
 	account_id: number;
-	accountDestination?: number; // Optional for transfers
+	accountDestination?: number;
 	amount: number;
 	type: string;
 	category: string;
@@ -29,7 +29,7 @@ export type GroupedTransactions = {
 	Yesterday: Transaction[];
 	"This Week": Transaction[];
 	"Last Week": Transaction[];
-	Other: Record<string, Transaction[]>; // e.g., "June 15": [...]
+	Other: Record<string, Transaction[]>;
 };
 
 export class TransferDTO {
@@ -38,5 +38,5 @@ export class TransferDTO {
 	@IsNotEmpty()
 	amount: number;
 	@IsNotEmpty()
-	accountDestinationId: number; // Required for transfers
+	accountDestinationId: number;
 }
