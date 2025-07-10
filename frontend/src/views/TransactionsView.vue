@@ -70,21 +70,23 @@ const transactionsGroups = computed(() => {
   if (!data.value) return {} as Record<string, Transaction[]>
 
   const transactionsGroups: Record<string, Transaction[]> = {}
-  const today = new Date()
+
+  const now = new Date()
+  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate())
   const yesterday = getYesterday()
   const thisWeekStart = getThisWeekStart()
   const lastWeekStart = getLastWeekStart()
   const formatter = new Intl.DateTimeFormat('en-CA', { month: 'long', day: 'numeric' })
 
   const getLabel = (date: Date): string => {
-    const dateStr = date.toDateString()
+    const localMidnight = new Date(date.getFullYear(), date.getMonth(), date.getDate())
 
-    if (dateStr === today.toDateString()) return 'Today'
-    if (dateStr === yesterday.toDateString()) return 'Yesterday'
-    if (date >= thisWeekStart && date < today) return 'This Week'
-    if (date >= lastWeekStart && date < thisWeekStart) return 'Last Week'
+    if (localMidnight.getTime() === today.getTime()) return 'Today'
+    if (localMidnight.getTime() === yesterday.getTime()) return 'Yesterday'
+    if (localMidnight >= thisWeekStart && localMidnight < today) return 'This Week'
+    if (localMidnight >= lastWeekStart && localMidnight < thisWeekStart) return 'Last Week'
 
-    return formatter.format(new Date(date.setHours(0, 0, 0, 0)))
+    return formatter.format(localMidnight)
   }
 
   let orderedTransactions = data.value.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())

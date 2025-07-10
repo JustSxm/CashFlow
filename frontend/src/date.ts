@@ -12,19 +12,22 @@ export function getFirstDayOfMonth(): Date {
 }
 
 export function getYesterday(): Date {
-  const today = new Date()
+  const now = new Date()
+  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate())
   return new Date(today.getFullYear(), today.getMonth(), today.getDate() - 1)
 }
 
 export const getThisWeekStart = (): Date => {
-  const today = new Date()
+  const now = new Date()
+  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate())
   const day = today.getDay()
   const diff = today.getDate() - (day === 0 ? 6 : day - 1)
   return new Date(today.getFullYear(), today.getMonth(), diff)
 }
 
 export const getLastWeekStart = (): Date => {
-  const today = new Date()
+  const now = new Date()
+  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate())
   const day = today.getDay()
   const diff = today.getDate() - ((day === 0 ? 6 : day - 1) + 7)
   return new Date(today.getFullYear(), today.getMonth(), diff)

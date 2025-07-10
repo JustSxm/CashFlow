@@ -11,6 +11,7 @@ import { TransactionTypes } from '@shared/TransactionTypes'
 import Transaction from '@/components/Transaction.vue'
 import Pill from '@/components/Pill.vue'
 import type { Settings as SettingsType } from '@shared/Settings'
+import type { Account } from '@shared/Account'
 
 let data = ref<TransactionType[]>([])
 let lastThreeTransactions = ref<TransactionType[]>([])
@@ -156,6 +157,14 @@ const dateRangeLabel = computed(() => {
   return sameMonth ? `${startDay} - ${endDay} ${endMonth}` : `${startDay} ${startMonth} - ${endDay} ${endMonth}`
 })
 
+async function fetchAccounts() {
+  const response = await fetchWithAuth(ApiEndpoints.ACCOUNTS)
+  const accounts: Account[] = await response.json()
+  if (accounts.some((account) => account.balance < 0)) {
+    alert('You have accounts with negative balances. Please check your accounts.')
+  }
+}
+
 async function fetchSettings() {
   const response = await fetchWithAuth(ApiEndpoints.SETTINGS)
   const settings: SettingsType = await response.json()
@@ -191,6 +200,7 @@ async function fetchSettings() {
 onMounted(() => {
   fetchTransactions()
   fetchSettings()
+  fetchAccounts()
 })
 </script>
 
