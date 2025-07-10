@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { User } from '@shared/models';
 import { PrismaService } from 'prisma/prisma.service';
 import { AccountDTO } from '@shared/Account';
-import { TransactionDTO, TransferDTO } from '@shared/Transaction';
+import { Transaction, TransactionDTO, TransferDTO } from '@shared/Transaction';
 import { TransactionTypes } from '@shared/TransactionTypes';
 import { SettingsDTO } from '@shared/Settings';
 import { AccountTypes } from '@shared/AccountTypes';
@@ -130,18 +130,7 @@ export class MeService {
       data: {
         vendor: 'Transfer',
         account_id: transfer.accountId,
-        amount: -transfer.amount, // Negative for transfer out
-        type: TransactionTypes.TRANSFER,
-        category: 'transfer',
-        accountDestination: transfer.accountDestinationId,
-      },
-    });
-
-    await this.prismaService.transactions.create({
-      data: {
-        vendor: 'Transfer',
-        account_id: transfer.accountId!,
-        amount: transfer.amount, // Positive for transfer in
+        amount: transfer.amount,
         type: TransactionTypes.TRANSFER,
         category: 'transfer',
         accountDestination: transfer.accountDestinationId,
@@ -202,6 +191,11 @@ export class MeService {
       where: { id: id },
     });
 
+    if (transaction.type === TransactionTypes.TRANSFER) {
+      await this.undoTransfer(user, transaction);
+      return;
+    }
+
     // Update the account balance after deleting the transaction
     let editAmount = transaction.amount;
     if (transaction.type === TransactionTypes.EXPENSE) {
@@ -248,59 +242,38 @@ export class MeService {
     return await this.getTransactions(user);
   }
 
+  async undoTransfer(user: User, transaction: any) {
+    await this.updateAccountBalance(user, transaction.account_id, transaction.amount);
+    await this.updateAccountBalance(user, transaction.accountDestination!, -transaction.amount);
+  }
+
   async updateTransfer(user, id: number, transferDto: TransferDTO) {
-    // 1. Load primary transaction
-    const primary = await this.prismaService.transactions.findFirst({
+    const transaction = await this.prismaService.transactions.findFirst({
       where: { id, account: { user_id: user.id }, type: TransactionTypes.TRANSFER },
     });
 
-    if (!primary) {
+    if (!transaction) {
       throw new Error('Transfer not found');
     }
 
-    const secondary = await this.prismaService.transactions.findFirst({
-      where: {
+    await this.undoTransfer(user, transaction);
+
+    // Update transfer transaction
+    await this.prismaService.transactions.update({
+      where: { id },
+      data: {
+        vendor: 'Transfer',
         account_id: transferDto.accountId,
-        accountDestination: transferDto.accountDestinationId,
+        amount: transferDto.amount,
         type: TransactionTypes.TRANSFER,
-        amount: -primary.amount,
-        id: {
-          in: [primary.id + 1, primary.id - 1],
-        },
+        category: 'transfer',
+        accountDestination: transferDto.accountDestinationId,
       },
     });
 
-    if (!secondary) {
-      throw new Error('Paired transfer not found');
-    }
-
-    const isPrimaryLoss = primary.amount.toNumber() < 0;
-    const rawAmount = transferDto.amount; // Always positive amount
-
-    const newPrimaryAmount = isPrimaryLoss ? -rawAmount : +rawAmount;
-    const newSecondaryAmount = isPrimaryLoss ? +rawAmount : -rawAmount;
-
-    const deltaPrimary = newPrimaryAmount - primary.amount.toNumber();
-    const deltaSecondary = newSecondaryAmount - secondary.amount.toNumber();
-
-    await this.prismaService.transactions.update({
-      where: { id: primary.id },
-      data: { amount: newPrimaryAmount },
-    });
-    await this.prismaService.transactions.update({
-      where: { id: secondary.id },
-      data: { amount: newSecondaryAmount },
-    });
-
-    if (isPrimaryLoss) {
-      await this.updateAccountBalance(user, primary.account_id, deltaPrimary);
-      await this.updateAccountBalance(user, primary.accountDestination!, deltaSecondary);
-    } else {
-      await this.updateAccountBalance(user, primary.account_id, deltaSecondary);
-      await this.updateAccountBalance(user, primary.accountDestination!, deltaPrimary);
-    }
-
-    return this.getTransactions(user);
+    // Apply new transfer
+    await this.updateAccountBalance(user, transferDto.accountId, -transferDto.amount);
+    await this.updateAccountBalance(user, transferDto.accountDestinationId!, transferDto.amount);
   }
 
   async updateSettings(user: any, settings: SettingsDTO) {

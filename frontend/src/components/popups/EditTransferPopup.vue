@@ -12,15 +12,20 @@ import { ApiEndpoints } from '@/enums/APIEndpoints'
 import { fetchWithAuth } from '@/fetchWithAuth'
 import type { DropdownOption } from '@/models/DropdownOption'
 import { AccountTypes } from '@shared/AccountTypes'
-import { TransferDTO } from '@shared/Transaction'
+import { Transaction, TransferDTO } from '@shared/Transaction'
 
-const emit = defineEmits<{
-  (e: 'created'): void
+const props = defineProps<{
+  transaction: Transaction
 }>()
 
-let amount = ref('')
-let account = ref<number | null>(null)
-let accountTo = ref<number | undefined>(undefined)
+const emit = defineEmits<{
+  (e: 'updated'): void
+}>()
+
+let amount = ref(Number(props.transaction.amount).toFixed(2))
+let account = ref<number | null>(props.transaction.account_id)
+let accountTo = ref<number | undefined>(props.transaction.accountDestination)
+
 const accounts = ref<Account[]>([])
 const dropDownOptions = computed<DropdownOption[]>(() => {
   return accounts.value.map((a) => ({
@@ -30,7 +35,7 @@ const dropDownOptions = computed<DropdownOption[]>(() => {
   }))
 })
 
-async function createTransaction() {
+async function updateTransaction() {
   if (!amount.value || !account.value || !accountTo.value) {
     alert('Please fill in all fields.')
     return
@@ -42,8 +47,8 @@ async function createTransaction() {
     accountDestinationId: Number(accountTo.value),
   }
 
-  await fetchWithAuth(ApiEndpoints.TRANSFER, {
-    method: 'POST',
+  await fetchWithAuth(ApiEndpoints.TRANSFER_UPDATE(props.transaction.id), {
+    method: 'PUT',
     body: JSON.stringify(transaction),
   })
 
@@ -54,7 +59,7 @@ function onClose() {
   amount.value = ''
   account.value = null
   accountTo.value = undefined
-  emit('created')
+  emit('updated')
 }
 
 onMounted(async () => {
@@ -66,7 +71,7 @@ onMounted(async () => {
 <template>
   <div class="bg-black/50 fixed inset-0 z-40 flex items-center justify-center">
     <div class="absolute bg-white h-auto w-96 border-t-6 border-green-400 mx-auto z-50 p-6">
-      <h1 class="text-xl text-center font-medium">Add Transfer</h1>
+      <h1 class="text-xl text-center font-medium">Edit Transfer</h1>
       <div class="flex flex-col gap-6 mt-6">
         <div class="px-4">
           <FormLabel label="From Account"></FormLabel>
@@ -84,7 +89,7 @@ onMounted(async () => {
         </div>
         <div class="flex gap-2 mt-6">
           <RedButton label="Cancel" class="w-full" @click="onClose" />
-          <Button label="Create" class="w-full" @click="createTransaction" />
+          <Button label="Update" class="w-full" @click="updateTransaction" />
         </div>
       </div>
     </div>

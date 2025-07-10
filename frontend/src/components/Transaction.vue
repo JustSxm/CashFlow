@@ -12,9 +12,13 @@ const props = defineProps<{
   transaction: Transaction
 }>()
 
-const amount = `${Number(props.transaction.amount).toFixed(2)}$`
+const amount = `${Number(props.transaction.amount).toFixed(2)} $`
 
-const color = props.transaction.amount > 0 ? 'text-green-500' : 'text-red-500'
+let color = props.transaction.amount > 0 ? 'text-green-500' : 'text-red-500'
+
+if (props.transaction.type === TransactionTypes.TRANSFER) {
+  color = 'text-black/50'
+}
 
 const formattedDate = new Intl.DateTimeFormat('en-CA', {
   day: 'numeric',

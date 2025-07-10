@@ -8,4 +8,5 @@ export const ApiEndpoints = {
   TRANSACTIONS: `${api}/me/transactions`,
   SETTINGS: `${api}/me/settings`,
   TRANSFER: `${api}/me/transfer`,
+  TRANSFER_UPDATE: (id: number) => `${api}/me/transfer/${id}`,
 } as const

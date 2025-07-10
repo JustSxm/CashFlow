@@ -37,7 +37,6 @@ model accounts {
   destinationTransactions transactions[] @relation("DestinationAccount") 
 }
 
-
 model transactions {
   id          Int       @id @default(autoincrement())
   account_id  Int       @db.Integer

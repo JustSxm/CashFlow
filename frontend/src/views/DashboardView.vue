@@ -63,7 +63,6 @@ const categoryWithMostSpendings = computed(() => {
 
 const incomeLeftRatio = computed(() => {
   if (totalIncome.value === 0) return 0
-  console.log('Total Income:', totalIncome.value, 'Total Spendings:', totalSpendings.value)
   console.log(Math.max(0, Math.min(1, (totalIncome.value - totalSpendings.value) / totalIncome.value)))
   return Math.max(0, Math.min(1, (totalIncome.value + totalSpendings.value) / totalIncome.value))
 })

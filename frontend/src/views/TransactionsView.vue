@@ -1,20 +1,25 @@
 <script setup lang="ts">
-import TransactionGroup from '@/components/TransactionGroup.vue'
-import Button from '@/components/Button.vue'
 import { Funnel, LoaderCircle, ArrowLeftRight } from 'lucide-vue-next'
-import AddTransactionPopup from '@/components/popups/AddTransactionPopup.vue'
-import EditTransactionPopup from '@/components/popups/EditTransactionPopup.vue'
 import { computed, onMounted, ref } from 'vue'
 import { fetchWithAuth } from '@/fetchWithAuth'
 import { ApiEndpoints } from '@/enums/APIEndpoints'
-import type { Transaction } from '@shared/Transaction'
-import BackButton from '@/components/BackButton.vue'
+import { Transaction } from '@shared/Transaction'
 import { RouteNames } from '@/router'
-import MonthlyTransactionsBalance from '@/components/MonthlyTransactionsBalance.vue'
 import { getLastWeekStart, getThisWeekStart, getYesterday } from '@/date'
+import AddTransactionPopup from '@/components/popups/AddTransactionPopup.vue'
+import EditTransactionPopup from '@/components/popups/EditTransactionPopup.vue'
+import BackButton from '@/components/BackButton.vue'
+import MonthlyTransactionsBalance from '@/components/MonthlyTransactionsBalance.vue'
+import TransactionGroup from '@/components/TransactionGroup.vue'
+import Button from '@/components/Button.vue'
+import AddTransferPopup from '@/components/popups/AddTransferPopup.vue'
+import EditTransferPopup from '@/components/popups/EditTransferPopup.vue'
+import { TransactionTypes } from '@shared/TransactionTypes'
 
 let showAddTransactionPopup = ref(false)
 let showEditTransactionPopup = ref(false)
+let showAddTransferPopup = ref(false)
+let showEditTransferPopup = ref(false)
 let transactionInEdit = ref<Transaction | null>(null)
 let loading = ref(true)
 let data = ref<Transaction[]>([])
@@ -28,6 +33,8 @@ onMounted(async () => {
 async function onClose() {
   showAddTransactionPopup.value = false
   showEditTransactionPopup.value = false
+  showAddTransferPopup.value = false
+  showEditTransferPopup.value = false
   transactionInEdit.value = null
 }
 
@@ -38,7 +45,12 @@ async function onAddedTransaction() {
 
 async function editTransaction(transaction: Transaction) {
   transactionInEdit.value = transaction
-  showEditTransactionPopup.value = true
+
+  if (transaction.type === TransactionTypes.TRANSFER) {
+    showEditTransferPopup.value = true
+  } else {
+    showEditTransactionPopup.value = true
+  }
 }
 
 async function fetchTransactions() {
@@ -85,12 +97,13 @@ const transactionsGroups = computed(() => {
 
   return transactionsGroups
 })
-/*showAddTransferPopup = true*/
 </script>
 
 <template>
   <AddTransactionPopup v-if="showAddTransactionPopup" @created="onAddedTransaction" />
   <EditTransactionPopup v-if="showEditTransactionPopup" :transaction="transactionInEdit!" @updated="onAddedTransaction" />
+  <AddTransferPopup v-if="showAddTransferPopup" @created="onAddedTransaction" />
+  <EditTransferPopup v-if="showEditTransferPopup" :transaction="transactionInEdit!" @updated="onAddedTransaction" />
   <div class="py-2 px-4">
     <BackButton :link="RouteNames.Dashboard" />
   </div>
@@ -109,7 +122,7 @@ const transactionsGroups = computed(() => {
 
     <div class="fixed bottom-0 flex w-full p-4 gap-3">
       <Button label="Add Transaction" class="flex-1 shadow-lg" @click="showAddTransactionPopup = true" />
-      <Button class="!w-12 relative shadow-lg" @click="">
+      <Button class="!w-12 relative shadow-lg" @click="showAddTransferPopup = true">
         <div class="text-white absolute inset-0 flex items-center justify-center">
           <ArrowLeftRight :size="24" />
         </div>

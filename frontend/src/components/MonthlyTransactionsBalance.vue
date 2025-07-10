@@ -4,6 +4,7 @@ import type { Transaction } from '@shared/Transaction'
 import { ArrowUp, ArrowDown } from 'lucide-vue-next'
 import { computed } from 'vue'
 import TransactionGraph from './TransactionGraph.vue'
+import { TransactionTypes } from '@shared/TransactionTypes'
 
 const props = defineProps<{
   transactions: Transaction[]
@@ -19,6 +20,9 @@ const monthlyBalance = computed(() => {
   if (!monthlyTransactions.value) return 'Loading...'
 
   let total = monthlyTransactions.value.reduce((sum, transaction) => {
+    if (transaction.type === TransactionTypes.TRANSFER) {
+      return sum
+    }
     return sum + Number(transaction.amount)
   }, 0)
 

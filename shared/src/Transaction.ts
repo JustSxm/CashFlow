@@ -1,12 +1,15 @@
-import { IsNotEmpty, IsOptional } from "class-validator";
+import { IsNotEmpty } from "class-validator";
 
-export class TransactionDTO {
-	@IsNotEmpty()
-	vendor: string;
+export class BaseTransactionDTO {
 	@IsNotEmpty()
 	accountId: number;
 	@IsNotEmpty()
 	amount: number;
+}
+
+export class TransactionDTO extends BaseTransactionDTO {
+	@IsNotEmpty()
+	vendor: string;
 	@IsNotEmpty()
 	type: string;
 	@IsNotEmpty()
@@ -32,11 +35,7 @@ export type GroupedTransactions = {
 	Other: Record<string, Transaction[]>;
 };
 
-export class TransferDTO {
-	@IsNotEmpty()
-	accountId: number;
-	@IsNotEmpty()
-	amount: number;
+export class TransferDTO extends BaseTransactionDTO {
 	@IsNotEmpty()
 	accountDestinationId: number;
 }

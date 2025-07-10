@@ -90,6 +90,5 @@ export class MeController {
     const user = req.user;
 
     await this.meService.updateTransfer(user, id, transfer);
-    return await this.meService.getTransactions(user);
   }
 }

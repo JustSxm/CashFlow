@@ -1,8 +1,9 @@
 <script setup lang="ts">
-import { onMounted, ref, watch } from 'vue'
+import { onMounted, ref, useTemplateRef, watch } from 'vue'
 import { ChevronsUpDown, FileQuestion } from 'lucide-vue-next'
 import { type DropdownOption } from '@/models/DropdownOption'
 import { capitalize } from '@/capitalize'
+import { onClickOutside } from '@vueuse/core'
 
 const props = defineProps<{
   placeholder?: string
@@ -32,10 +33,17 @@ watch([() => model.value, () => props.options?.length], () => {
     optionModel.value = matched
   }
 })
+
+onMounted(() => {
+  const dropdown = useTemplateRef<HTMLElement>('dropdownRef')
+  onClickOutside(dropdown, () => {
+    open.value = false
+  })
+})
 </script>
 
 <template>
-  <div class="relative">
+  <div class="relative" ref="dropdownRef">
     <div class="absolute left-4 top-1/2 transform -translate-y-1/2">
       <FileQuestion v-if="!optionModel" class="text-black" :size="16" strokeWidth="1" />
       <component v-else :is="optionModel.icon" class="text-black" strokeWidth="1" size="16" />
