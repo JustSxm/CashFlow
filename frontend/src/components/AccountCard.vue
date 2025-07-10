@@ -60,7 +60,7 @@ watchEffect(() => {
         </div>
         <div class="flex flex-col justify-center ml-auto">
           <span class="text-black/50 text-sm font-inter">Balance</span>
-          <span class="font-inter font-medium text-right">{{ account.balance }} $</span>
+          <span class="font-inter font-medium text-right">{{ Number(props.account.balance).toFixed(2) }} $</span>
         </div>
         <div v-if="account.limit" class="flex flex-col justify-center">
           <span class="text-black/50 text-sm font-inter">Limit</span>
