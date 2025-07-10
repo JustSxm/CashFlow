@@ -48,4 +48,4 @@ WORKDIR /app
 
 
 EXPOSE 8080
-CMD ["http-server", "dist"]
+CMD ["http-server", "dist", "--fallback index.html"]
