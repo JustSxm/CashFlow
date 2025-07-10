@@ -12,48 +12,38 @@ import Transaction from '@/components/Transaction.vue'
 import Pill from '@/components/Pill.vue'
 import type { Settings as SettingsType } from '@shared/Settings'
 
-let data = ref<TransactionType[] | null>(null)
+let data = ref<TransactionType[]>([])
 let lastThreeTransactions = ref<TransactionType[]>([])
 let selectedFilter = ref()
 let startOfWeek = ref(1)
 const transactionsInFilter = ref<TransactionType[]>([])
 
 let totalIncome = computed(() => {
-  const transactions = transactionsInFilter.value
-  if (!transactions || transactions.length === 0) return 0
   return transactionsInFilter.value
     .filter((transaction) => transaction.type === TransactionTypes.INCOME)
     .reduce((sum, transaction) => sum + Number(transaction.amount), 0)
 })
 
 let totalSpendings = computed(() => {
-  const transactions = transactionsInFilter.value
-  if (!transactions || transactions.length === 0) return 0
   return transactionsInFilter.value
     .filter((transaction) => transaction.type === TransactionTypes.EXPENSE)
     .reduce((sum, transaction) => sum + Number(transaction.amount), 0)
 })
 
 let totalSavings = computed(() => {
-  const transactions = transactionsInFilter.value
-  if (!transactions || transactions.length === 0) return 0
   return transactionsInFilter.value
     .filter((transaction) => transaction.type === TransactionTypes.SAVING)
     .reduce((sum, transaction) => sum + Number(transaction.amount), 0)
 })
 
 const categoryWithMostSpendings = computed(() => {
-  const transactions = transactionsInFilter.value
-  if (!transactions || transactions.length === 0) return 'None'
+  if (transactionsInFilter.value.length === 0) return 'None'
 
   const grouped: Record<string, number> = {}
 
-  for (const transaction of transactions) {
-    if (transaction.type !== TransactionTypes.EXPENSE) continue
-    console.log('Processing transaction:', transaction)
+  for (const transaction of transactionsInFilter.value.filter((t) => t.type === TransactionTypes.EXPENSE)) {
     const category = transaction.category
     grouped[category] = (grouped[category] || 0) + -Number(transaction.amount)
-    console.log(`Category: ${category}, Amount: ${transaction.amount}, Total: ${grouped[category]}`)
   }
 
   const maxCategory = Object.entries(grouped).reduce((max, current) => (current[1] > max[1] ? current : max), ['', 0])[0]
@@ -62,8 +52,6 @@ const categoryWithMostSpendings = computed(() => {
 })
 
 const incomeLeftRatio = computed(() => {
-  if (totalIncome.value === 0) return 0
-  console.log(Math.max(0, Math.min(1, (totalIncome.value - totalSpendings.value) / totalIncome.value)))
   return Math.max(0, Math.min(1, (totalIncome.value + totalSpendings.value) / totalIncome.value))
 })
 
