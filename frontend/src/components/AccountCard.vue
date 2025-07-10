@@ -64,7 +64,7 @@ watchEffect(() => {
         </div>
         <div v-if="account.limit" class="flex flex-col justify-center">
           <span class="text-black/50 text-sm font-inter">Limit</span>
-          <span class="font-inter font-medium text-right">{{ account.limit }} $</span>
+          <span class="font-inter font-medium text-right">{{ Number(props.account.limit).toFixed(2) }} $</span>
         </div>
       </div>
     </div>
