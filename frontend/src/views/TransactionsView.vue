@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Funnel, LoaderCircle, ArrowLeftRight } from 'lucide-vue-next'
+import { LoaderCircle, Repeat } from 'lucide-vue-next'
 import { computed, onMounted, ref } from 'vue'
 import { fetchWithAuth } from '@/fetchWithAuth'
 import { ApiEndpoints } from '@/enums/APIEndpoints'
@@ -126,12 +126,7 @@ const transactionsGroups = computed(() => {
       <Button label="Add Transaction" class="flex-1 shadow-lg" @click="showAddTransactionPopup = true" />
       <Button class="!w-12 relative shadow-lg" @click="showAddTransferPopup = true">
         <div class="text-white absolute inset-0 flex items-center justify-center">
-          <ArrowLeftRight :size="24" />
-        </div>
-      </Button>
-      <Button class="!w-12 relative shadow-lg">
-        <div class="text-white absolute inset-0 flex items-center justify-center">
-          <Funnel :size="24" />
+          <Repeat :size="24" />
         </div>
       </Button>
     </div>

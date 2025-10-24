@@ -1,4 +1,10 @@
-const api = import.meta.env.VITE_API_BASE_URL
+let api = `${window.location.protocol}//${window.location.hostname}`
+if (import.meta.env.VITE_API_PORT) {
+  api += `:${import.meta.env.VITE_API_PORT}`
+} else {
+  api += '/api'
+}
+
 export const ApiEndpoints = {
   LOGIN: `${api}/auth/login`,
   REGISTER: `${api}/auth/register`,
