@@ -16,7 +16,9 @@ import { Badge } from "@/components/ui/badge";
 				</div>
 			</CardHeader>
 			<CardContent class="flex flex-col gap-2">
-				<p class="text-4xl font-heading tabular-nums font-bold tracking-tight">934 $</p>
+				<div class="flex items-center">
+					<p class="text-4xl tabular-nums font-bold">934 $</p>
+				</div>
 
 				<span>
 					<span class="flex gap-1 items-center"><HugeiconsIcon :icon="ArrowUpDoubleIcon" class="w-4 h-4 text-primary" />Up 15% this month</span>
